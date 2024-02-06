@@ -6,6 +6,7 @@ import java.util.*;
 public class Main {
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringBuilder sb = new StringBuilder();
         int n = Integer.parseInt(br.readLine());
         List<Person> list = new ArrayList<>();
         int seq = 0;
@@ -16,8 +17,9 @@ public class Main {
         }
         Collections.sort(list);
         for (Person person : list) {
-            System.out.println(person);
+            sb.append(person);
         }
+        System.out.print(sb);
     }
 
     static class Person implements Comparable<Person> {
@@ -39,7 +41,7 @@ public class Main {
 
         @Override
         public String toString() {
-            return age + " " + name;
+            return age + " " + name + "\n";
         }
     }
 }
