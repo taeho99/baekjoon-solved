@@ -9,11 +9,11 @@ public class Main {
         int K = Integer.parseInt(st.nextToken());
         st = new StringTokenizer(br.readLine());
 
-        List<Integer> arr = new ArrayList<>();
+        int[] arr = new int[N];
         while(N-- > 0) {
-            arr.add(Integer.parseInt(st.nextToken()));
+            arr[N] = Integer.parseInt(st.nextToken());
         }
-        Collections.sort(arr);
-        System.out.println(arr.get(K-1));
+        Arrays.sort(arr);
+        System.out.print(arr[K-1]);
     }
 }
