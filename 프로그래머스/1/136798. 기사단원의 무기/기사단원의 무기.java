@@ -1,24 +1,20 @@
-public class Solution {
+class Solution {
 
     public int solution(int number, int limit, int power) {
-        int answer = 0;
-        int[] attack = new int[number+1];
-        for(int i=1; i<=number; i++) {
-            attack[i] = getYakCount(i);
-        }
-        for (int i : attack) {
-            answer += i > limit ? power : i;
-        }
-        return answer;
-    }
-
-    private int getYakCount(int j) {
-        int count = 1;
-        for(int i=1; i<=j/2; i++) {
-            if(j%i == 0) {
-                count++;
+        int[] count = new int[number + 1];    
+        for (int i = 1; i <= number; i++) {
+            for (int j = 1; j <= number / i; j++) {
+                count[i * j]++;
             }
         }
-        return count;
+        int answer = 0;
+        for (int i = 1; i <= number; i++) {
+            if (count[i] > limit) {
+                answer += power;
+            } else {
+                answer += count[i];
+            }
+        }
+        return answer;
     }
 }
