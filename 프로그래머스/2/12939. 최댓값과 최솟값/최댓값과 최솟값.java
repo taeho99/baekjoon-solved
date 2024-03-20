@@ -2,13 +2,13 @@ import java.util.*;
 
 class Solution {
     public String solution(String s) {
-        List<Integer> list = new ArrayList<>();
         StringTokenizer st = new StringTokenizer(s);
+        int min = Integer.MAX_VALUE, max = Integer.MIN_VALUE;
         while(st.hasMoreTokens()) {
-            list.add(Integer.parseInt(st.nextToken()));
+            int now = Integer.parseInt(st.nextToken());
+            min = Math.min(now, min);
+            max = Math.max(now, max);
         }
-        Collections.sort(list);
-
-        return list.get(0) + " " + list.get(list.size()-1);
+        return min + " " + max;
     }
 }
