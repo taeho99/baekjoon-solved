@@ -10,14 +10,13 @@ public class Main {
         StringTokenizer st = new StringTokenizer(br.readLine());
         StringBuilder sb = new StringBuilder();
         HashMap<Integer, Integer> map = new HashMap<>();
-        HashSet<Integer> set = new HashSet<>();
         int[] arr = new int[n];
         for(int i=0; i<n; i++) {
             int num = Integer.parseInt(st.nextToken());
             arr[i] = num;
-            set.add(num);
+            map.put(num, 0);
         }
-        ArrayList<Integer> list = new ArrayList<>(set);
+        ArrayList<Integer> list = new ArrayList<>(map.keySet());
         Collections.sort(list);
 
         for(int i=0; i<list.size(); i++) {
