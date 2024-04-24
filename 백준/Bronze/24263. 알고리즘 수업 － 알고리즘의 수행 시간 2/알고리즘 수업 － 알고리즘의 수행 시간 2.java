@@ -1,0 +1,1 @@
+import java.util.*;interface Main{static void main(String[] a){System.out.print(new Scanner(System.in).next()+"\n1");}}
