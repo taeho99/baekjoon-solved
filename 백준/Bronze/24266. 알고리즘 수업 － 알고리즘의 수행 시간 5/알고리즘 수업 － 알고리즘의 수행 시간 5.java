@@ -1,0 +1,1 @@
+import java.util.Scanner;interface Main{static void main(String[] a){long n=new Scanner(System.in).nextInt();System.out.print(n*n*n+"\n3");}}
