@@ -1,6 +1,7 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Arrays;
 import java.util.StringTokenizer;
 
 public class Main {
@@ -11,14 +12,11 @@ public class Main {
         int n = Integer.parseInt(st.nextToken());
         int m = Integer.parseInt(st.nextToken());
 
-        int[][] s = new int[n][n];
+        int[][] s = new int[n+1][n+1];
         for(int i=0; i<n; i++) {
             st = new StringTokenizer(br.readLine());
             for(int j=0; j<n; j++) {
-                if(j == 0)
-                    s[i][j] = Integer.parseInt(st.nextToken());
-                else
-                    s[i][j] = s[i][j - 1] + Integer.parseInt(st.nextToken());
+                s[i + 1][j + 1] = s[i + 1][j] + s[i][j + 1] - s[i][j] + Integer.parseInt(st.nextToken());
             }
         }
 
@@ -28,13 +26,8 @@ public class Main {
             int x1 = Integer.parseInt(st.nextToken());
             int y2 = Integer.parseInt(st.nextToken());
             int x2 = Integer.parseInt(st.nextToken());
+            long sum = s[y2][x2] - s[y1-1][x2] - s[y2][x1-1] + s[y1-1][x1-1];
 
-            long sum = 0;
-            for(int j=y1-1; j<=y2-1; j++) {
-                sum += s[j][x2-1];
-                if(x1-2 >= 0)
-                    sum -= s[j][x1-2];
-            }
             sb.append(sum).append('\n');
         }
         System.out.print(sb);
