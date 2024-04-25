@@ -35,7 +35,8 @@ public class Main {
                 if(x1-2 >= 0)
                     sum -= s[j][x1-2];
             }
-            System.out.println(sum);
+            sb.append(sum).append('\n');
         }
+        System.out.print(sb);
     }
 }
