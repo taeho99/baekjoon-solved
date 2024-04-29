@@ -1,7 +1,1 @@
-import java.util.*;
-class Main {
-    public static void main(String[] args) {
-        new Scanner(System.in).next();
-        System.out.print("1\n0");
-    }
-}
+interface Main{static void main(String[]a){System.out.print("1\n0");}}
