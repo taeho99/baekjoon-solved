@@ -8,7 +8,7 @@ import java.util.StringTokenizer;
 public class Main {
     static final int[] dy = {0, 0, -1, 1};
     static final int[] dx = {-1, 1, 0, 0};
-    static int[][] arr;
+    static int[][] arr, copyArr;
     static int maxSafeZone = Integer.MIN_VALUE;
     static int n, m;
     public static void main(String[] args) throws IOException {
@@ -46,17 +46,12 @@ public class Main {
 
     private static void bfs() {
         Queue<Node> queue = new LinkedList<>();
-        boolean[][] visited = new boolean[n][m];
-
-        int size = n*m;
+        copyArr = new int[n][m];
         for(int i=0; i<n; i++) {
             for(int j=0; j<m; j++) {
+                copyArr[i][j] = arr[i][j];
                 if(arr[i][j] == 2) {
                     queue.add(new Node(i, j));
-                    visited[i][j] = true;
-                    size--;
-                } else if (arr[i][j] == 1) {
-                    size--;
                 }
             }
         }
@@ -67,11 +62,21 @@ public class Main {
                 int ny = poll.y + dy[i];
                 int nx = poll.x + dx[i];
                 if(ny < 0 || ny >= n || nx < 0 || nx >= m) continue;
-                if(!visited[ny][nx] && arr[ny][nx] == 0) {
+                if(copyArr[ny][nx] == 0) {
+                    copyArr[ny][nx] = 2;
                     queue.add(new Node(ny, nx));
-                    visited[ny][nx] = true;
-                    size--;
                 }
+            }
+        }
+        calcSafeZone();
+    }
+
+    private static void calcSafeZone() {
+        int size = 0;
+        for(int i=0; i<n; i++) {
+            for(int j=0; j<m; j++) {
+                if(copyArr[i][j] == 0)
+                    size++;
             }
         }
         maxSafeZone = Math.max(size, maxSafeZone);
