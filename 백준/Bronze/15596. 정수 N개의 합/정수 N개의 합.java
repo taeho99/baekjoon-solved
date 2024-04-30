@@ -1,0 +1,1 @@
+class Test{long sum(int[]a){return java.util.Arrays.stream(a).mapToLong(i->i).sum();}}
