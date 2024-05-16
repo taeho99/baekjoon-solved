@@ -1,0 +1,1 @@
+interface Main{static void main(String[]a){System.out.println((int)Math.pow(2,new java.util.Scanner(System.in).nextInt()));}}
