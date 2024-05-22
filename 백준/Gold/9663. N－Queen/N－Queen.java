@@ -1,17 +1,23 @@
-import java.util.Scanner;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.HashSet;
+import java.util.Set;
 
 public class Main {
     static int result = 0, n;
-    static boolean[][] queen;
-    public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
-        n = sc.nextInt();
-        queen = new boolean[n][n];
+    static boolean[] columnSet, plusSet, minusSet;
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        n = Integer.parseInt(br.readLine());
+        columnSet = new boolean[n];
+        plusSet = new boolean[2*n];
+        minusSet = new boolean[2*n];
         dfs(0);
-        System.out.println(result);
+        System.out.print(result);
     }
 
-    private static void dfs(int row) {
+    static void dfs(int row) {
         if(row == n) {
             result++;
             return;
@@ -19,22 +25,20 @@ public class Main {
 
         for(int col=0; col<n; col++) {
             if(promise(row, col)) {
-                queen[row][col] = true;
+                columnSet[col] = true;
+                plusSet[col+row] = true;
+                minusSet[(n-1)-col+row] = true;
                 dfs(row+1);
-                queen[row][col] = false;
+                columnSet[col] = false;
+                plusSet[col+row] = false;
+                minusSet[(n-1)-col+row] = false;
             }
         }
     }
 
-    private static boolean promise(int row, int col) {
-        for(int i=0; i<row; i++) {
-            int j;
-            for(j=0; j<n; j++) {
-                if(queen[i][j]) break;
-            }
-            if(col == j || Math.abs(j-col) == row - i)
-                return false;
-        }
+    static boolean promise(int row, int col) {
+        if(columnSet[col] || plusSet[col+row] || minusSet[(n-1)-col+row])
+            return false;
         return true;
     }
 }
