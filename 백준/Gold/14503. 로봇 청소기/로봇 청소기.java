@@ -53,7 +53,7 @@ public class Main {
             } else {
                 int ny = r + dy[(d+2)%4];
                 int nx = c + dx[(d+2)%4];
-                if(arr[ny][nx] == 1 || ny < 0 || ny >= n || nx < 0 || nx >= m) {
+                if(arr[ny][nx] == 1) {
                     break;
                 } else {
                     r = ny;
