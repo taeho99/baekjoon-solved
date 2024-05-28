@@ -1,0 +1,1 @@
+interface Main{static void main(String[]a){int n=new java.util.Scanner(System.in).nextInt();System.out.print(n/125+n/25+n/5);}}
