@@ -7,19 +7,22 @@ public class Main {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         int n = Integer.parseInt(br.readLine());
         int m = Integer.parseInt(br.readLine());
-        String s = br.readLine();
+        char[] s = br.readLine().toCharArray();
+        int[] memo = new int[m];
+
+        StringBuilder pn = new StringBuilder();
+        for(int i=0; i<n*2+1; i++) {
+            pn.append(i%2 == 0 ? 'I' : 'O');
+        }
 
         int result = 0;
-        for(int i=0; i<=m-(2*n+1); i++) {
-            boolean check = true;
-            for(int j=0; j<2*n+1; j++) {
-                char c = s.charAt(i + j);
-                if((j % 2 == 0 && c == 'O') || (j % 2 == 1 && c == 'I')) {
-                    check = false;
-                    break;
+        for(int i=1; i<m-1; i++) {
+            if(s[i] == 'O' && s[i+1] == 'I') {
+                memo[i+1] = memo[i-1] + 1;
+                if(memo[i+1] >= n && s[i-2*n+1] == 'I') {
+                    result++;
                 }
             }
-            if(check) result++;
         }
         System.out.println(result);
     }
