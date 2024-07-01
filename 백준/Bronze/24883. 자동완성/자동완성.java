@@ -1,0 +1,1 @@
+interface Main{static void main(String[]a){System.out.print(new java.util.Scanner(System.in).next().equalsIgnoreCase("n")?"Naver D2":"Naver Whale");}}
