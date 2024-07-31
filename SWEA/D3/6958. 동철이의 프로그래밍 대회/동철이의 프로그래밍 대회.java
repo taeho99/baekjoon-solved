@@ -23,7 +23,7 @@ public class Solution {
 			int m = Integer.parseInt(st.nextToken());
 			
 			//각 사람들이 푼 문제 수를 담는 배열
-			int[] result = new int[n];
+			int[] score = new int[n];
 			//cnt: 1등한 사람 수, maxScore: 가장 높은 점수
 			int cnt = 0, maxScore = 0; 
 			
@@ -32,15 +32,15 @@ public class Solution {
 				for(int col=0; col<m; col++) {
 					//문제를 풀었을 경우 result 배열에 푼 문제 수를 1 추가하고 maxScore 업데이트
 					if(Integer.parseInt(st.nextToken()) == 1) {
-						result[row]++;
-						maxScore = Math.max(maxScore, result[row]);
+						score[row]++;
+						maxScore = Math.max(maxScore, score[row]);
 					}
 				}
 			}
 			
 			//점수가 maxScore인 사람 카운팅
 			for(int row=0; row<n; row++) {
-				if(result[row] == maxScore) cnt++;
+				if(score[row] == maxScore) cnt++;
 			}
 			
 			sb.append(cnt).append(' ').append(maxScore).append('\n');
