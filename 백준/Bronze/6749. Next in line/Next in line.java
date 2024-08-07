@@ -1,1 +1,1 @@
-import java.util.*;class Main {public static void main(String[]a){Scanner sc=new Scanner(System.in);System.out.print(-sc.nextInt()+2*(sc.nextInt()));}}
+import java.util.*;interface Main{static void main(String[]a){var s=new Scanner(System.in);System.out.print(-s.nextInt()+2*s.nextInt());}}
