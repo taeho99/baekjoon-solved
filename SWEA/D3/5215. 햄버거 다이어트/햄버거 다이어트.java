@@ -41,7 +41,7 @@ public class Solution {
 			// 2. 가능한 재료의 조합을 1개~ELEMENT_COUNT개 모두 확인해본다.
 			for(SELECT_COUNT=1; SELECT_COUNT<=ELEMENT_COUNT; SELECT_COUNT++) {
 				selectList = new int[SELECT_COUNT];
-				combination(0, 0);
+				combination(0, 0, 0, 0);
 			}
 			
 			// 3. 최고 점수를 출력한다.
@@ -50,18 +50,11 @@ public class Solution {
 		System.out.print(sb);
 	}
 	
-	private static void combination(int elementIdx, int selectIdx) {
+	private static void combination(int elementIdx, int selectIdx, int sumCalorie, int sumScore) {
 		// 기저 조건: 모든 재료를 선택한 경우 종료
 		if(selectIdx == SELECT_COUNT) {
 			
 			// 2-1. 가능한 재료 조합의 칼로리 합과 점수 합을 구한다.
-			int sumCalorie = 0;
-			int sumScore = 0;
-			for(int idx=0; idx<SELECT_COUNT; idx++) {
-				sumCalorie += calorieList[selectList[idx]];
-				sumScore += scoreList[selectList[idx]];
-			}
-			
 			// 2-2. (재료의 칼로리 합 <= 제한 칼로리) 인 경우에만 최고 점수를 갱신해 결과를 갱신한다.
 			if(sumCalorie <= MAX_CALORIE) {
 				maxScore = Math.max(maxScore, sumScore);
@@ -75,12 +68,14 @@ public class Solution {
 		}
 		
 		// 현재 재료를 선택한 경우
+		// 기존 sum 값에 현재 선택한 재료의 칼로리와 점수를 추가해준다.
 		selectList[selectIdx] = elementIdx;
-		combination(elementIdx + 1, selectIdx + 1);
+		combination(elementIdx + 1, selectIdx + 1, sumCalorie + calorieList[elementIdx], sumScore + scoreList[elementIdx]);
 		
 		// 현재 재료를 선택하지 않은 경우
+		// 기존 sum 값을 그대로 전달한다.
 		selectList[selectIdx] = 0;
-		combination(elementIdx + 1, selectIdx);
+		combination(elementIdx + 1, selectIdx, sumCalorie, sumScore);
 	}
 
 }
