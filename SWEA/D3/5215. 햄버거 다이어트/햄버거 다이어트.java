@@ -51,14 +51,14 @@ public class Solution {
 	}
 	
 	private static void combination(int elementIdx, int selectIdx, int sumCalorie, int sumScore) {
+		if(sumCalorie > MAX_CALORIE) return;
+		
 		// 기저 조건: 모든 재료를 선택한 경우 종료
 		if(selectIdx == SELECT_COUNT) {
 			
 			// 2-1. 가능한 재료 조합의 칼로리 합과 점수 합을 구한다.
 			// 2-2. (재료의 칼로리 합 <= 제한 칼로리) 인 경우에만 최고 점수를 갱신해 결과를 갱신한다.
-			if(sumCalorie <= MAX_CALORIE) {
-				maxScore = Math.max(maxScore, sumScore);
-			}
+			maxScore = Math.max(maxScore, sumScore);
 			return;
 		}
 		
