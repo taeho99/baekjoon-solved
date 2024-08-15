@@ -5,70 +5,88 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.StringTokenizer;
 
+/**
+ * BOJ.15686 치킨 배달
+ *
+ * 1. 치킨 집 중 M개의 치킨집의 조합을 구한다.
+ * 2. 모든 집에서 선택된 치킨 집과의 거리를 구한다.
+ * 3. 최솟값을 갱신한다.
+ */
 public class Main {
-    static int n, m, result = Integer.MAX_VALUE;
-    static ArrayList<Point> home, store;
-    static boolean[] open;
+    static int ELEMENT_COUNT, SELECT_COUNT, MAP_SIZE, minResult = Integer.MAX_VALUE;
+    static Point[] selectStore;
+    static ArrayList<Point> elementStore, homeList;
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st = new StringTokenizer(br.readLine());
-        n = Integer.parseInt(st.nextToken());
-        m = Integer.parseInt(st.nextToken());
 
-        home = new ArrayList<>();
-        store = new ArrayList<>();
-        for(int i=0; i<n; i++) {
+        StringTokenizer st = new StringTokenizer(br.readLine());
+        MAP_SIZE = Integer.parseInt(st.nextToken());
+        SELECT_COUNT = Integer.parseInt(st.nextToken());
+        selectStore = new Point[SELECT_COUNT];
+        elementStore = new ArrayList<>();
+        homeList = new ArrayList<>();
+
+        for(int row=0; row<MAP_SIZE; row++) {
             st = new StringTokenizer(br.readLine());
-            for(int j=0; j<n; j++) {
+            for(int col=0; col<MAP_SIZE; col++) {
                 int tmp = Integer.parseInt(st.nextToken());
                 if(tmp == 1) {
-                    home.add(new Point(i, j));
+                    homeList.add(new Point(row, col));
                 } else if (tmp == 2) {
-                    store.add(new Point(i, j));
+                    elementStore.add(new Point(row, col));
                 }
             }
         }
-        open = new boolean[store.size()];
+        ELEMENT_COUNT = elementStore.size();
 
-        dfs(0, 0);
-        System.out.println(result);
+        combination(0, 0);
+
+        System.out.print(minResult);
     }
 
-    private static void dfs(int start, int depth) {
-        if(depth == m) {
-            int tmp = 0;
-            for (Point h : home) {
-                int min = Integer.MAX_VALUE;
-                for(int i=0; i<store.size(); i++) {
-                    if(open[i]) {
-                        min = Math.min(min, h.getDistance(store.get(i)));
-                    }
+    private static void combination(int elementIdx, int selectIdx) {
+        if(selectIdx == SELECT_COUNT) {
+            int sum = 0;
+            for (Point home : homeList) {
+                int minDist = Integer.MAX_VALUE;
+                for (Point store : selectStore) {
+                    minDist = Math.min(minDist, home.getDistance(store));
                 }
-                tmp += min;
+                sum += minDist;
             }
-            result = Math.min(result, tmp);
+            minResult = Math.min(minResult, sum);
             return;
         }
 
-        for(int i=start; i<store.size(); i++) {
-            if(!open[i]) {
-                open[i] = true;
-                dfs(i + 1, depth + 1);
-                open[i] = false;
-            }
+        if(elementIdx == ELEMENT_COUNT) {
+            return;
         }
+
+        selectStore[selectIdx] = elementStore.get(elementIdx);
+        combination(elementIdx + 1, selectIdx + 1);
+
+        selectStore[selectIdx] = null;
+        combination(elementIdx + 1, selectIdx);
     }
 
     static class Point {
-        int y, x;
+        int row, col;
 
-        public Point(int y, int x) {
-            this.y = y;
-            this.x = x;
+        public Point(int row, int col) {
+            this.row = row;
+            this.col = col;
         }
 
-        public int getDistance(Point p) {
-            return Math.abs(this.y - p.y) + Math.abs(this.x - p.x);
+        @Override
+        public String toString() {
+            return "Point{" +
+                    "row=" + row +
+                    ", col=" + col +
+                    '}';
+        }
+
+        int getDistance(Point p) {
+            return Math.abs(this.row - p.row) + Math.abs(this.col - p.col);
         }
     }
 }
