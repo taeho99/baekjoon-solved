@@ -34,9 +34,7 @@ public class Main {
     static void search(int number, int selectCnt) {
         // 3. [기저조건] digit 자릿수까지 선택이 되었다면 그 수가 소수인지 확인한다. 소수면 출력
         if(selectCnt == digit) {
-            if(isPrime(number)) {
-                sb.append(number).append('\n');
-            }
+            sb.append(number).append('\n');
             return;
         }
 
