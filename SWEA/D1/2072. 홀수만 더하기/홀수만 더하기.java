@@ -1,20 +1,17 @@
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.StringTokenizer;
+import java.util.Scanner;
 
 public class Solution {
-    public static void main(String[] args) throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        int t = Integer.parseInt(br.readLine());
-        for(int i=1; i<=t; i++) {
-            StringTokenizer st = new StringTokenizer(br.readLine());
-            int sum = 0;
-            for (int j = 0; j < 10; j++) {
-                int tmp = Integer.parseInt(st.nextToken());
-                sum += tmp%2 == 1 ? tmp : 0;
-            }
-            System.out.println("#" + i + " " + sum);
-        }
-    }
+	public static void main(String[] args) throws IOException {
+		Scanner sc = new Scanner(System.in);
+		int T = sc.nextInt();
+		for(int tc=1; tc<=T; tc++) {
+			int sum = 0;
+			for(int idx=0; idx<10; idx++) {
+				int tmp = sc.nextInt();
+				if(tmp%2 == 1) sum += tmp;
+			}
+			System.out.println("#" + tc + " " + sum);
+		}
+	}
 }
