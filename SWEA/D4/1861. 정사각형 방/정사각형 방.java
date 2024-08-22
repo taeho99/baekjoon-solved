@@ -39,6 +39,13 @@ public class Solution {
 	}
 	
 	static void dfs(int row, int col, int depth) {
+
+		if(depth > resultMove) {
+			resultMove = depth;
+			resultRoom = map[row][col] - depth + 1;
+		} else if (depth == resultMove) {
+			resultRoom = Math.min(resultRoom, map[row][col] - depth + 1);
+		}
 		
 		for(int dir=0; dir<4; dir++) {
 			int nRow = row + dRow[dir];
@@ -47,13 +54,6 @@ public class Solution {
 			if(map[nRow][nCol] == map[row][col] + 1) {
 				dfs(nRow, nCol, depth + 1);
 			}
-		}
-		
-		if(depth > resultMove) {
-			resultMove = depth;
-			resultRoom = map[row][col] - depth + 1;
-		} else if (depth == resultMove) {
-			resultRoom = Math.min(resultRoom, map[row][col] - depth + 1);
 		}
 	}
 	
