@@ -58,6 +58,8 @@ public class Solution {
 	}
 	
 	static void permutation(int selectIdx, int sumDistance) {
+		if(sumDistance >= result) return;
+		
 		// 2-1. [기저조건] 고객들의 좌표가 인덱스 1~(size+1) 까지 저장되므로 selectIdx가 (size+1)이 되면 종료.
 		if(selectIdx == size + 1) {
 			// 2-1-1. 고객N->집 까지의 경로를 더해주고 result 값을 갱신한다.
