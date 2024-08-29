@@ -34,23 +34,26 @@ public class Solution {
 
             // 1. 섬의 개수와 각 섬의 좌표, 세율을 입력받는다.
             vertexCnt = Integer.parseInt(br.readLine()); // 0, 1, ... , (vertexCnt-1)
-            Vertex[] vertices = new Vertex[vertexCnt];
+            int[] verticesX = new int[vertexCnt];
+            int[] verticesY = new int[vertexCnt];
             st1 = new StringTokenizer(br.readLine());
             st2 = new StringTokenizer(br.readLine());
             for(int idx=0; idx<vertexCnt; idx++) {
                 // 1-1. 각 섬의 좌표는 정점 배열에 저장한다.
-                vertices[idx] = new Vertex(Integer.parseInt(st1.nextToken()), Integer.parseInt(st2.nextToken()));
+                verticesX[idx] = Integer.parseInt(st1.nextToken());
+                verticesY[idx] = Integer.parseInt(st2.nextToken());
             }
             taxRate = Double.parseDouble(br.readLine());
 
             // 2. 정점 배열에서 연결 가능한 모든 간선을 구한다. (간선의 개수: v(v-1)/2)
             edgeCnt = vertexCnt*(vertexCnt-1)/2;
             edges = new Edge[edgeCnt];
+            int idx = 0;
             for(int start=0; start<vertexCnt; start++) {
                 for(int end=start+1; end<vertexCnt; end++) {
                     // 2-1. 두 정점 사이의 거리를 구하고 환경 부담금을 구해 간선의 비용으로 넣는다.
-                    double dist = vertices[start].getDistance(vertices[end]);
-                    edges[--edgeCnt] = new Edge(start, end, taxRate*dist*dist);
+                    double distSquare = Math.pow(verticesX[start] - verticesX[end], 2) + Math.pow(verticesY[start] - verticesY[end], 2);
+                    edges[idx++] = new Edge(start, end, taxRate*distSquare);
                 }
             }
 
@@ -94,19 +97,6 @@ public class Solution {
         parents[aRoot] += parents[bRoot];
         parents[bRoot] = aRoot;
         return true;
-    }
-
-    static class Vertex {
-        int x, y;
-
-        public Vertex(int x, int y) {
-            this.x = x;
-            this.y = y;
-        }
-
-        double getDistance(Vertex v) {
-            return Math.sqrt(Math.pow(this.x-v.x, 2) + Math.pow(this.y-v.y, 2));
-        }
     }
 
     static class Edge implements Comparable<Edge> {
