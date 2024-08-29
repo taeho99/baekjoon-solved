@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.StringTokenizer;
 
 /**
- *  SWEA.1251 하나로
+ *  SWEA.3124 최소스패닝트리_크루스칼
  *
  *  1. 정점의 개수와 간선의 개수를 입력받는다.
  *  2. 간선들의 정보를 입력받는다.
@@ -17,7 +17,8 @@ import java.util.StringTokenizer;
  *  6. 최소 비용을 반올림하여 출력한다.
  */
 public class Solution {
-    static int vertexCnt, edgeCnt;
+    static int vertexCnt, edgeCnt, selectEdgeCnt;
+    static long minimumCost;
     static int[] parents;
     static Edge[] edges;
     public static void main(String[] args) throws IOException {
@@ -48,8 +49,8 @@ public class Solution {
             // 4. 각 정점을 최소 단위 서로소 집합으로 만든다.
             makeSet();
 
-            int selectEdgeCnt = 0;
-            long minimumCost = 0;
+            selectEdgeCnt = 0;
+            minimumCost = 0;
             for (Edge edge : edges) {
                 // 5. 간선의 비용이 적은 순부터 간선의 두 정점(start,end)가 아직 연결되지 않았으면 연결한다.
                 if(union(edge.start, edge.end)) {
@@ -66,23 +67,24 @@ public class Solution {
         System.out.print(sb);
     }
 
-    static void makeSet() {
-        parents = new int[vertexCnt];
-        Arrays.fill(parents, -1);
+    private static int findSet(int x) {
+        if(x == parents[x]) return x;
+        return parents[x] = findSet(parents[x]);
     }
 
-    static int findSet(int a) {
-        if(parents[a] < 0) return a;
-        return parents[a] = findSet(parents[a]);
-    }
-
-    static boolean union(int a, int b) {
+    private static boolean union(int a, int b) {
         int aRoot = findSet(a);
         int bRoot = findSet(b);
         if(aRoot == bRoot) return false;
-        parents[aRoot] += parents[bRoot];
         parents[bRoot] = aRoot;
         return true;
+    }
+
+    private static void makeSet() {
+        parents = new int[vertexCnt];
+        for(int idx=0; idx<vertexCnt; idx++) {
+            parents[idx] = idx;
+        }
     }
 
     static class Edge implements Comparable<Edge> {
