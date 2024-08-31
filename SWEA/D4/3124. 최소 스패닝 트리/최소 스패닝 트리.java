@@ -2,25 +2,27 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Arrays;
+import java.util.PriorityQueue;
 import java.util.StringTokenizer;
 
 /**
  *  SWEA.3124 최소스패닝트리_크루스칼
  *
  *  1. 정점의 개수와 간선의 개수를 입력받는다.
- *  2. 간선들의 정보를 입력받는다.
- *  3. 크루스칼 알고리즘을 위해 간선들을 비용 기준 오름차순으로 정렬한다.
- *  4. 각 정점을 최소 단위 서로소 집합으로 만든다.
- *  5. 간선의 비용이 적은 순부터 간선의 두 정점(start,end)가 아직 연결되지 않았으면 연결한다.
- *      5-1. 연결이 가능하면 현재 간선의 비용을 비용의 총합에 더한다.
- *      5-2. 선택된 간선이 V-1개면 종료한다. (MST는 간선이 V-1개)
- *  6. 최소 비용을 반올림하여 출력한다.
+ *  2. 인접행렬 정보를 입력받는다.
+ *  3. 프림 알고리즘을 위해 minEdge[] 배열을 MAX_VALUE로 초기화한다.
+ *  4. 0번 정점을 트리의 시작 정점으로 지정한다.
+ *  5. 방문하지 않은 정점 중 간선의 비용이 최소인 정점을 구한다.
+ *  6. 그 정점을 선택하여 트리에 넣고 비용의 합에 더한다.
+ *  7. 선택된 정점과 다른 정점들을 비교해서 minEdge[] 값을 갱신한다.
+ *  8. 최소 비용을 출력한다.
  */
 public class Solution {
-    static int vertexCnt, edgeCnt, selectEdgeCnt;
+    static int vertexCnt, edgeCnt, selectCnt;
+    static Node[] adjList;
+    static int[] minEdge;
+    static boolean[] visited;
     static long minimumCost;
-    static int[] parents;
-    static Edge[] edges;
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringBuilder sb = new StringBuilder();
@@ -35,70 +37,56 @@ public class Solution {
             vertexCnt = Integer.parseInt(st.nextToken()); // 0, 1, ... , (vertexCnt-1)
             edgeCnt = Integer.parseInt(st.nextToken());
 
-            // 2. 간선들의 정보를 입력받는다.
-            edges = new Edge[edgeCnt];
-            for(int idx=0; idx<edgeCnt; idx++) {
+            // 2. 인접행렬 정보를 입력받는다.
+            adjList = new Node[vertexCnt];
+            while(edgeCnt-- > 0) {
                 st = new StringTokenizer(br.readLine());
-                edges[idx] = new Edge(Integer.parseInt(st.nextToken())-1,
-                        Integer.parseInt(st.nextToken())-1,
-                        Integer.parseInt(st.nextToken()));
+                int from = Integer.parseInt(st.nextToken()) - 1;
+                int to = Integer.parseInt(st.nextToken()) - 1;
+                int weight = Integer.parseInt(st.nextToken());
+                adjList[from] = new Node(to, weight, adjList[from]);
+                adjList[to] = new Node(from, weight, adjList[to]);
             }
 
-            // 3. 크루스칼 알고리즘을 위해 간선들을 비용 기준 오름차순으로 정렬한다.
-            Arrays.sort(edges);
-            // 4. 각 정점을 최소 단위 서로소 집합으로 만든다.
-            makeSet();
+            // 3. 프림 알고리즘을 위해 minEdge[] 배열을 MAX_VALUE로 초기화한다.
+            minEdge = new int[vertexCnt];
+            visited = new boolean[vertexCnt];
+            Arrays.fill(minEdge, Integer.MAX_VALUE);
+            // 4. 0번 정점을 트리의 시작 정점으로 지정한다.
+            minEdge[0] = 0;
 
-            selectEdgeCnt = 0;
             minimumCost = 0;
-            for (Edge edge : edges) {
-                // 5. 간선의 비용이 적은 순부터 간선의 두 정점(start,end)가 아직 연결되지 않았으면 연결한다.
-                if(union(edge.start, edge.end)) {
-                    // 5-1. 연결이 가능하면 현재 간선의 비용을 비용의 총합에 더한다.
-                    minimumCost += edge.weight;
-                    // 5-2. 선택된 간선이 V-1개면 종료한다. (MST는 간선이 V-1개)
-                    if(++selectEdgeCnt == vertexCnt-1) break;
+            PriorityQueue<Node> pq = new PriorityQueue<>((o1, o2) -> Integer.compare(o1.weight, o2.weight));
+            pq.add(new Node(0, 0, null));
+            while(!pq.isEmpty()) {
+                // 5. 방문하지 않은 정점 중 간선의 비용이 최소인 정점을 구한다.
+                Node minVertex = pq.poll();
+                if(visited[minVertex.to]) continue;
+
+                // 6. 그 정점을 선택하여 트리에 넣고 비용의 합에 더한다.
+                visited[minVertex.to] = true;
+                minimumCost += minVertex.weight;
+
+                // 7. 선택된 정점과 다른 정점들을 비교해서 minEdge[] 값을 갱신한다.
+                for(Node temp = adjList[minVertex.to]; temp != null; temp = temp.next) {
+                    pq.add(temp);
                 }
             }
 
-            // 6. 최소 비용을 반올림하여 출력한다.
+            // 6. 최소 비용을 출력한다.
             sb.append(minimumCost).append('\n');
         }
         System.out.print(sb);
     }
 
-    private static int findSet(int x) {
-        if(x == parents[x]) return x;
-        return parents[x] = findSet(parents[x]);
-    }
+    static class Node {
+        int to, weight;
+        Node next;
 
-    private static boolean union(int a, int b) {
-        int aRoot = findSet(a);
-        int bRoot = findSet(b);
-        if(aRoot == bRoot) return false;
-        parents[bRoot] = aRoot;
-        return true;
-    }
-
-    private static void makeSet() {
-        parents = new int[vertexCnt];
-        for(int idx=0; idx<vertexCnt; idx++) {
-            parents[idx] = idx;
-        }
-    }
-
-    static class Edge implements Comparable<Edge> {
-        int start, end, weight;
-
-        public Edge(int start, int end, int weight) {
-            this.start = start;
-            this.end = end;
+        public Node(int to, int weight, Node next) {
+            this.to = to;
             this.weight = weight;
-        }
-
-        @Override
-        public int compareTo(Edge e) {
-            return Integer.compare(this.weight, e.weight);
+            this.next = next;
         }
     }
 }
