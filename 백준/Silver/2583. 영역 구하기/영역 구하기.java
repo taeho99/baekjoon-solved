@@ -1,85 +1,100 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 import java.util.StringTokenizer;
 
 public class Main {
-	static int n, m, k;
-	static boolean[][] map;
+	static int rowSize, colSize, iceAreaCnt;
+	static int[][] map;
 	static boolean[][] visited;
-	static int[] dy = {-1, 1, 0, 0};
-	static int[] dx = {0, 0, -1, 1};
-	static ArrayList<Integer> result = new ArrayList<>();
+	static List<Integer> result;
+	static int[] dRow = {-1, 1, 0, 0};
+	static int[] dCol = {0, 0, -1, 1};
 	public static void main(String[] args) throws IOException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		StringTokenizer st = new StringTokenizer(br.readLine());
-		n = Integer.parseInt(st.nextToken());
-		m = Integer.parseInt(st.nextToken());
-		k = Integer.parseInt(st.nextToken());
 		
-		map = new boolean[n][m];
-		for(int i=0; i<n; i++) {
-			Arrays.fill(map[i], true);
+		rowSize = Integer.parseInt(st.nextToken());
+		colSize = Integer.parseInt(st.nextToken());
+		iceAreaCnt = Integer.parseInt(st.nextToken());
+		
+		map = new int[rowSize][colSize];
+		result = new ArrayList<>();
+		
+		// 1. 맵 1로 채우기(1: 땅, 0: 얼음)
+		for(int row=0; row<rowSize; row++) {
+			Arrays.fill(map[row], 1);
 		}
-		visited = new boolean[n][m];
 		
-		for(int i=0; i<k; i++) {
+		// 2. 얼어붙은 영역 0으로 색칠해주기
+		while(iceAreaCnt-- > 0) {
 			st = new StringTokenizer(br.readLine());
-			int x1 = Integer.parseInt(st.nextToken());
-			int y1 = n - Integer.parseInt(st.nextToken()) - 1;
-			int x2 = Integer.parseInt(st.nextToken()) - 1;
-			int y2 = n - Integer.parseInt(st.nextToken());
 			
-			for(int row=y2; row<=y1; row++) {
-				for(int col=x1; col<=x2; col++) {
-					map[row][col] = false;
+			int startCol = Integer.parseInt(st.nextToken());
+			int startRow = Integer.parseInt(st.nextToken());
+			int endCol = Integer.parseInt(st.nextToken());
+			int endRow = Integer.parseInt(st.nextToken());
+			
+			for(int row=endRow-1; row>=startRow; row--) {
+				for(int col=startCol; col<endCol; col++) {
+					map[rowSize - 1 - row][col] = 0;
 				}
 			}
 		}
 		
-		for(int i=0; i<n; i++) {
-			for(int j=0; j<m; j++) {
-				if(map[i][j] && !visited[i][j]) {
-					bfs(i, j);
+		visited = new boolean[rowSize][colSize];
+		
+		// 3. 방문하지 않았으면서 땅인 영역 bfs 돌기
+		for(int row=0; row<rowSize; row++) {
+			for(int col=0; col<colSize; col++) {
+				if(map[row][col] == 1 && !visited[row][col]) {
+					// 3-1. bfs 결과값이 영역의 크기이므로 result에 추가해주기
+					result.add(bfs(row, col));
 				}
 			}
 		}
 		
+		// 4. 결과값 오름차순으로 정렬하기
 		Collections.sort(result);
+		
+		// 5. 영역의 개수와 영역의 각 넓이 출력하기
 		System.out.println(result.size());
-		for(int n : result) {
-			System.out.print(n + " ");
+		for (int r : result) {
+			System.out.print(r + " ");
 		}
 	}
 	
-	static void bfs(int y, int x) {
-		Queue<int[]> queue = new LinkedList<>();
-		queue.add(new int[] {y, x});
-		visited[y][x] = true;
+	private static int bfs(int row, int col) {
+		int area = 0; // 영역의 크기
+		Queue<int[]> queue = new ArrayDeque<>();
 		
-		int count = 0;
+		visited[row][col] = true;
+		queue.add(new int[] {row, col});
+		
 		while(!queue.isEmpty()) {
 			int[] poll = queue.poll();
-			count++;
+			area++;
 			
-			for(int i=0; i<4; i++) {
-				int ny = poll[0] + dy[i];
-				int nx = poll[1] + dx[i];
-
-				if(ny < 0 || ny >= n || nx < 0 || nx >= m) continue;
-
-				if(!visited[ny][nx] && map[ny][nx]) {
-					queue.add(new int[] {ny, nx});
-					visited[ny][nx] = true;
-				}
+			for(int dir=0; dir<4; dir++) {
+				int nRow = poll[0] + dRow[dir];
+				int nCol = poll[1] + dCol[dir];
+				
+				if(nRow < 0 || nRow >= rowSize || nCol < 0 || nCol >= colSize) continue;
+				
+				if(visited[nRow][nCol] || map[nRow][nCol] == 0) continue;
+				
+				visited[nRow][nCol] = true;
+				queue.add(new int[] {nRow, nCol});
 			}
 		}
-		result.add(count);
+		
+		return area;
 	}
 
 }
