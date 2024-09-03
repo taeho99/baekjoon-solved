@@ -1,95 +1,74 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.PriorityQueue;
 import java.util.StringTokenizer;
 
 public class Main {
-    static class Node implements Comparable<Node> {
-        int end;
-        int weight;
-
-        public Node(int end, int weight) {
-            this.end = end;
-            this.weight = weight;
-        }
-
-        @Override
-        public int compareTo(Node o) {
-            return this.weight - o.weight;
-        }
-    }
-
-    static ArrayList<ArrayList<Node>> adj;
-    static int[] dist;
-    static boolean[] visited;
-    static final int INF = (int)2e8;
-    static int[] dy = {-1, 1, 0, 0};
-    static int[] dx = {0, 0, -1, 1};
-    static int problem = 1;
-
-    public static void main(String[] args) throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st;
-        StringBuilder sb = new StringBuilder();
-        int n;
-        while((n = Integer.parseInt(br.readLine())) != 0) {
-            adj = new ArrayList<>();
-            dist = new int[n*n];
-            visited = new boolean[n*n];
-            for(int i=0; i<=n*n; i++) {
-                adj.add(new ArrayList<>());
-            }
-
-            int[][] map = new int[n][n];
-            for(int i=0; i<n; i++) {
-                st = new StringTokenizer(br.readLine());
-                for(int j=0; j<n; j++) {
-                    map[i][j] = Integer.parseInt(st.nextToken());
-                }
-            }
-
-            for(int i=0; i<n; i++) {
-                for(int j=0; j<n; j++) {
-                    if(i==n-1 && j==n-1) continue;
-                    int start = i*n + j;
-                    for(int k=0; k<4; k++) {
-                        int endY = i + dy[k];
-                        int endX = j + dx[k];
-                        if(endY < 0 || endY >= n || endX < 0 || endX >=n) continue;
-
-                        int end = endY*n + endX;
-                        adj.get(start).add(new Node(end, map[endY][endX]));
-                    }
-                }
-            }
-            sb.append("Problem ").append(problem++).append(": ").append(dijkstra(0, n * n - 1) + map[0][0]).append('\n');
-        }
-        System.out.print(sb);
-    }
-
-    private static int dijkstra(int start, int end) {
-        Arrays.fill(dist, INF);
-        Arrays.fill(visited, false);
-
-        PriorityQueue<Node> queue = new PriorityQueue<>();
-        queue.add(new Node(start, 0));
-        dist[start] = 0;
-
-        while(!queue.isEmpty()) {
-            Node poll = queue.poll();
-            if(!visited[poll.end]) {
-                visited[poll.end] = true;
-                for (Node node : adj.get(poll.end)) {
-                    if(!visited[node.end] && dist[node.end] > dist[poll.end] + node.weight) {
-                        dist[node.end] = dist[poll.end] + node.weight;
-                        queue.add(new Node(node.end, dist[node.end]));
-                    }
-                }
-            }
-        }
-        return dist[end];
-    }
+	static int tc = 1;
+	static int size;
+	static final int INF = Integer.MAX_VALUE;
+	static int[][] map;
+	static int[] dRow = {-1, 1, 0, 0};
+	static int[] dCol = {0, 0, -1, 1};
+	static StringBuilder sb = new StringBuilder();
+	public static void main(String[] args) throws IOException {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		StringTokenizer st;
+		
+		while((size = Integer.parseInt(br.readLine())) != 0) {
+			sb.append("Problem ").append(tc++).append(": ");
+			
+			map = new int[size][size];
+			
+			for(int row=0; row<size; row++) {
+				st = new StringTokenizer(br.readLine());
+				for(int col=0; col<size; col++) {
+					map[row][col] = Integer.parseInt(st.nextToken());
+				}
+			}
+			
+			sb.append(getMinDistance()).append('\n');
+		}
+		System.out.print(sb);
+	}
+	
+	static int getMinDistance() {
+		boolean[][] visited = new boolean[size][size];
+		int[][] minDistance = new int[size][size];
+		PriorityQueue<int[]> pq = new PriorityQueue<>((a, b) -> Integer.compare(a[2], b[2]));
+		
+		for(int row=0; row<size; row++) {
+			Arrays.fill(minDistance[row], INF);
+		}
+		
+		minDistance[0][0] = map[0][0];
+		pq.offer(new int[] {0, 0, minDistance[0][0]});
+		
+		while(!pq.isEmpty()) {
+			// step1
+			int[] stopOver = pq.poll();
+			int row = stopOver[0];
+			int col = stopOver[1];
+			int time = stopOver[2];
+			
+			if(visited[row][col]) continue;
+			visited[row][col] = true;
+			if(row == size-1 && col == size-1) 
+				return minDistance[row][col]; //return minDistance[endRow][endCol];
+			
+			for(int dir=0; dir<4; dir++) {
+				int nRow = row + dRow[dir];
+				int nCol = col + dCol[dir];
+				if(nRow < 0 || nRow >= size || nCol < 0 || nCol >= size) continue;
+				
+				if(!visited[nRow][nCol] && minDistance[nRow][nCol] > time + map[nRow][nCol]) {
+					minDistance[nRow][nCol] = time + map[nRow][nCol];
+					pq.offer(new int[] {nRow, nCol, minDistance[nRow][nCol]});
+				}
+			}
+		}
+		return -1;
+	}
 }
