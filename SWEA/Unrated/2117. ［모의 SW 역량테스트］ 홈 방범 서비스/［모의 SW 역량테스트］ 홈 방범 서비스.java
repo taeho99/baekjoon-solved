@@ -2,6 +2,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Queue;
 import java.util.StringTokenizer;
 
@@ -13,8 +15,9 @@ import java.util.StringTokenizer;
  *
  */
 public class Solution {
-	static int size, homeCharge, maxHomeCnt, totalHomeCnt;
+	static int size, homeCharge, maxHomeCnt;
 	static int[][] map;
+	static List<int[]> homeList;
 	static int[] dRow = {-1, 1, 0, 0};
 	static int[] dCol = {0, 0, -1, 1};
 	public static void main(String[] args) throws IOException {
@@ -31,12 +34,12 @@ public class Solution {
 			homeCharge = Integer.parseInt(st.nextToken());
 			
 			map = new int[size][size];
-			totalHomeCnt = 0;
+			homeList = new ArrayList<>();
 			for(int row=0; row<size; row++) {
 				st = new StringTokenizer(br.readLine());
 				for(int col=0; col<size; col++) {
 					map[row][col] = Integer.parseInt(st.nextToken());
-					if(map[row][col] == 1) totalHomeCnt++;
+					if(map[row][col] == 1) homeList.add(new int[] {row, col});
 				}
 			}
 			
@@ -45,53 +48,29 @@ public class Solution {
 				int manageCost = serviceArea*serviceArea + (serviceArea-1)*(serviceArea-1);
 				for(int row=0; row<size; row++) {
 					for(int col=0; col<size; col++) {
-						int homeCnt = bfs(row, col, serviceArea);
+						int homeCnt = 0;
+						for (int[] home : homeList) {
+							int dist = getDistance(home[0], home[1], row, col);
+							if(dist < serviceArea) homeCnt++;
+						}
+						
 						int profit = homeCharge*homeCnt - manageCost;
 						if(profit >= 0) {
 							maxHomeCnt = Math.max(maxHomeCnt, homeCnt);
 						}
-						if(maxHomeCnt == totalHomeCnt) break;
+						if(maxHomeCnt == homeList.size()) break;
 					}
-					if(maxHomeCnt == totalHomeCnt) break;
+					if(maxHomeCnt == homeList.size()) break;
 				}
-				if(maxHomeCnt == totalHomeCnt) break;
+				if(maxHomeCnt == homeList.size()) break;
 			}
 			
 			sb.append(maxHomeCnt).append('\n');
 		}
 		System.out.print(sb);
 	}
-	private static int bfs(int startRow, int startCol, int serviceArea) {
-		int cnt = 0;
-		Queue<int[]> queue = new ArrayDeque<>();
-		boolean[][] visited = new boolean[size][size];
-		
-		queue.add(new int[] {startRow, startCol, 1});
-		visited[startRow][startCol] = true;
-		if(map[startRow][startCol] == 1) cnt++; 
-		
-		while(!queue.isEmpty()) {
-			int[] poll = queue.poll();
-			
-			int row = poll[0];
-			int col = poll[1];
-			int area = poll[2];
-			
-			for(int dir=0; dir<4; dir++) {
-				int nRow = row + dRow[dir];
-				int nCol = col + dCol[dir];
-				int nArea = area + 1;
-				
-				if(nRow < 0 || nRow >= size || nCol < 0 || nCol >= size || visited[nRow][nCol]) continue;
-				
-				if(nArea <= serviceArea) {
-					if(map[nRow][nCol] == 1) cnt++;
-					queue.add(new int[] {nRow, nCol, nArea});
-					visited[nRow][nCol] = true;
-				}
-			}
-		}
-		return cnt;
+	
+	static int getDistance(int row1, int col1, int row2, int col2) {
+		return Math.abs(row1 - row2) + Math.abs(col1 - col2);
 	}
-
 }
