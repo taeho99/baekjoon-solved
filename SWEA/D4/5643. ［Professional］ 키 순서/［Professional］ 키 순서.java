@@ -18,13 +18,16 @@ import java.util.StringTokenizer;
  * 	4. 결과값 출력하기
  */
 public class Solution {
-	static int vertexCnt, edgeCnt;
+	static int T;
+	static int vertexCnt, edgeCnt, result;
+	static ArrayList<Integer>[] adj, adjReverse;
+	
+	static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+	static StringBuilder sb = new StringBuilder();
+	static StringTokenizer st;
 	public static void main(String[] args) throws IOException {
-		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		StringBuilder sb = new StringBuilder();
-		StringTokenizer st;
 		
-		int T = Integer.parseInt(br.readLine().trim());
+		T = Integer.parseInt(br.readLine().trim());
 		for(int tc=1; tc<=T; tc++) {
 			sb.append('#').append(tc).append(' ');
 			
@@ -33,8 +36,8 @@ public class Solution {
 			edgeCnt = Integer.parseInt(br.readLine().trim());
 			
 			// 2. 인접 리스트를 만든다. 나보다 키가 큰 순(정방향)과 키가 작은 순(역방향) 탐색을 위해 인접 리스트를 2개 만든다.
-			ArrayList<Integer>[] adj = new ArrayList[vertexCnt];
-			ArrayList<Integer>[] adjReverse = new ArrayList[vertexCnt];
+			adj = new ArrayList[vertexCnt];
+			adjReverse = new ArrayList[vertexCnt];
 			for(int idx=0; idx<vertexCnt; idx++) {
 				adj[idx] = new ArrayList<>();
 				adjReverse[idx] = new ArrayList<>();
@@ -49,7 +52,7 @@ public class Solution {
 				adjReverse[to].add(from);
 			}
 			
-			int result = 0;
+			result = 0;
 			// 3. 모든 정점에서 나보다 키 작은 애들 수와 키가 큰 애들 수를 구한다.
 			for(int idx=0; idx<vertexCnt; idx++) {
 				// 3-1. 현재 정점에서 bfs 탐색을 시작해 키 작은 수, 키 큰 수를 구한다.
