@@ -1,10 +1,33 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Arrays;
 import java.util.PriorityQueue;
 import java.util.StringTokenizer;
 
+/**
+ *	SWEA.2477 차량정비소
+ *
+ *	1. 창구, 고객, 찾으려는 창구 번호 등 데이터를 입력받는다.
+ *		1-1. 접수 창구 처리 시간 입력 및 초기화
+ *		1-2. 정비 창구 처리 시간 입력 및 및초기화
+ *		1-3. 고객 도착 시간 입력 및 초기화
+ *	2. 시뮬레이션 로직
+ *		2-1. 접수 창구 대기열 PQ 초기화
+ *			2-1-1. 도착시간 빠른 순. 도착시간 동일하면 고객 번호 작은 순
+ *		2-2. 정비 창구 대기열 PQ 초기화
+ *			2-1-2. 접수 끝난 시간 순. 접수 끝난 시간이 동일하면 접수 창구 번호가 작은 순 
+ *		2-3. time=0 부터 시뮬레이션 시작. 모든 고객이 정비를 마칠 때까지 반복
+ *			2-3-1. 정비 창구에서 정비 끝난 고객 빼주기
+ *			2-3-2. 접수 창구에서 접수 끝난 고객 빼주고 정비 창구 대기열에 줄 세우기
+ *			2-3-3. 정비소에 도착한 고객 접수 대기열에 줄 세우기
+ *			2-3-4. 비어있는 접수 창구에 고객 넣기
+ *			2-3-5. 비어있는 정비 창구에 고객 넣기
+ *			2-3-6. 접수 창구에 있는 고객의 접수 경과 시간 1 증가시키기
+ *			2-3-7. 정비 창구에 있는 고객의 접수 경과 시간 1 증가시키기
+ *	3. 고객 배열을 순회
+ *		3-1. 고객이 이용한 접수 창구 번호와 정비 창구 번호가 우리가 원하는 target 창구와 동일하면 결과값에 고객 번호 증가시키기
+ *	4. target 창구와 동일한 창구를 이용한 고객이 없으면 -1 출력, 있으면 result 출력
+ */
 public class Solution {
 	static int receptionDeskCnt, repairDeskCnt, clientCnt, targetReceptionDesk, targetRepairDesk;
 	static ReceptionDesk[] receptions;
@@ -19,6 +42,7 @@ public class Solution {
 		for(int tc=1; tc<=T; tc++) {
 			sb.append('#').append(tc).append(' ');
 			
+			// 1. 창구, 고객, 찾으려는 창구 번호 등 데이터를 입력받는다.
 			st = new StringTokenizer(br.readLine());
 			receptionDeskCnt = Integer.parseInt(st.nextToken());
 			repairDeskCnt = Integer.parseInt(st.nextToken());
@@ -26,45 +50,49 @@ public class Solution {
 			targetReceptionDesk = Integer.parseInt(st.nextToken());
 			targetRepairDesk = Integer.parseInt(st.nextToken());
 			
-			// 접수창구 입력
+			// 1-1. 접수 창구 처리 시간 입력 및 초기화
 			receptions = new ReceptionDesk[receptionDeskCnt+1];
 			st = new StringTokenizer(br.readLine());
 			for(int idx=1; idx<=receptionDeskCnt; idx++) {
 				receptions[idx] = new ReceptionDesk(idx, Integer.parseInt(st.nextToken()));
 			}
 
+			// 1-2. 정비 창구 처리 시간 입력 및 및초기화
 			repairs = new RepairDesk[repairDeskCnt+1];
 			st = new StringTokenizer(br.readLine());
 			for(int idx=1; idx<=repairDeskCnt; idx++) {
 				repairs[idx] = new RepairDesk(idx, Integer.parseInt(st.nextToken()));
 			}
 			
+			// 1-3. 고객 도착 시간 입력 및 초기화
 			clients = new Client[clientCnt+1];
 			st = new StringTokenizer(br.readLine());
 			for(int idx=1; idx<=clientCnt; idx++) {
 				clients[idx] = new Client(idx, Integer.parseInt(st.nextToken()));
 			}
 			
+			// 2. 시뮬레이션 로직
 			simulation();
 			
 			int result = 0;
+			// 3. 고객 배열을 순회
 			for (int idx=1; idx<=clientCnt; idx++) {
+				// 3-1. 고객이 이용한 접수 창구 번호와 정비 창구 번호가 우리가 원하는 target 창구와 동일
 				if(clients[idx].receptionDesk == targetReceptionDesk && 
 						clients[idx].repairDesk == targetRepairDesk) {
 					result += clients[idx].num;
 				}
 			}
 			
+			// 4. target 창구와 동일한 창구를 이용한 고객이 없으면 -1 출력, 있으면 result 출력
 			sb.append(result == 0 ? -1 : result).append('\n');
 		}
 		System.out.print(sb);
 	}
 	
 	static void simulation() {
-		int time = -1;
-
-		
-		// 접수창구 대기 줄
+		// 2-1. 접수 창구 대기열 PQ 초기화
+		// 2-1-1. 도착시간 빠른 순. 도착시간 동일하면 고객 번호 작은 순
 		PriorityQueue<Client> receptionWaitPQ = 
 				new PriorityQueue<>((c1, c2) ->  {
 					if(c1.arriveTime == c2.arriveTime) 
@@ -72,7 +100,8 @@ public class Solution {
 					return Integer.compare(c1.arriveTime, c2.arriveTime);
 				});
 		
-		// 정비창구 대기 줄
+		// 2-2. 정비 창구 대기열 PQ 초기화
+		// 2-1-2. 접수 끝난 시간 순. 접수 끝난 시간이 동일하면 접수 창구 번호가 작은 순 
 		PriorityQueue<Client> repairWaitPQ = 
 				new PriorityQueue<>((c1, c2) ->  {
 					if(c1.receptFinishTime == c2.receptFinishTime) 
@@ -80,9 +109,10 @@ public class Solution {
 					return Integer.compare(c1.receptFinishTime, c2.receptFinishTime);
 				});
 		
+		// 2-3. time=0 부터 시뮬레이션 시작. 모든 고객이 정비를 마칠 때까지 반복
+		int time = 0;
 		while(isRemainPeople()) {
-			time++;
-			// 정비 창구에서 정비 끝난 고객 빼기
+			// 2-3-1. 정비 창구에서 정비 끝난 고객 빼주기
 			for(int idx=1; idx<=repairDeskCnt; idx++) {
 				if(repairs[idx].client == null) continue;
 				if(repairs[idx].client.elapsedTime == repairs[idx].time) {
@@ -91,7 +121,7 @@ public class Solution {
 				}
 			}
 
-			// 경과시간이 접수 창구의 처리 시간과 같아지면, 정비 창구에 줄 세우기
+			// 2-3-2. 접수 창구에서 접수 끝난 고객 빼주고 정비 창구 대기열에 줄 세우기
 			for(int idx=1; idx<=receptionDeskCnt; idx++) {
 				if(receptions[idx].client == null) continue;
 				if(receptions[idx].client.elapsedTime == receptions[idx].time) {
@@ -101,14 +131,14 @@ public class Solution {
 				}
 			}
 			
-			// 현재 도착한 고객 중, 접수 창구에 줄세우기
+			// 2-3-3. 정비소에 도착한 고객 접수 대기열에 줄 세우기
 			for(int idx=1; idx<=clientCnt; idx++) {
 				if(clients[idx].arriveTime == time) {
 					receptionWaitPQ.add(clients[idx]);
 				}
 			}
 			
-			// 빈 접수창구에 고객 넣기(만약, 빈 창구가 없으면 다시 PQ에 넣기)
+			// 2-3-4. 비어있는 접수 창구에 고객 넣기
 			for(int idx=1; idx<=receptionDeskCnt; idx++) {
 				if(receptions[idx].client == null && !receptionWaitPQ.isEmpty()) {
 					receptions[idx].client = receptionWaitPQ.poll();
@@ -116,7 +146,7 @@ public class Solution {
 				}
 			}
 			
-			// 정비 창구에 고객 넣기
+			// 2-3-5. 비어있는 정비 창구에 고객 넣기
 			for(int idx=1; idx<=repairDeskCnt; idx++) {
 				if(repairs[idx].client == null && !repairWaitPQ.isEmpty()) {
 					repairs[idx].client = repairWaitPQ.poll();
@@ -125,18 +155,19 @@ public class Solution {
 				}
 			}
 			
-			// 접수 창구에 있는 고객의 경과시간 증가시키기
+			// 2-3-6. 접수 창구에 있는 고객의 접수 경과 시간 1 증가시키기
 			for(int idx=1; idx<=receptionDeskCnt; idx++) {
 				if(receptions[idx].client == null) continue;
 				receptions[idx].client.elapsedTime++;
 			}
 			
-			// 정비 창구에 있는 고객의 경과시간 증가시키기
+			// 2-3-7. 정비 창구에 있는 고객의 접수 경과 시간 1 증가시키기
 			for(int idx=1; idx<=repairDeskCnt; idx++) {
 				if(repairs[idx].client == null) continue;
 				repairs[idx].client.elapsedTime++;
 			}
-			
+
+			time++;
 		}
 	}
 
@@ -161,15 +192,6 @@ public class Solution {
 			this.receptFinishTime = 0;
 			this.isFinish = false;
 		}
-
-		@Override
-		public String toString() {
-			return "[num=" + num + ", receptionDesk=" + receptionDesk
-					+ ", repairDesk=" + repairDesk + ", elapsedTime=" + elapsedTime + ", receptFinishTime="
-					+ receptFinishTime + ", isFinish=" + isFinish + "]";
-		}
-		
-		
 	}
 	
 	static class ReceptionDesk {
@@ -181,13 +203,6 @@ public class Solution {
 			this.num = num;
 			this.time = time;
 		}
-
-		@Override
-		public String toString() {
-			return "[" + client + ", num=" + num + ", time=" + time + "]";
-		}
-		
-		
 	}
 	
 	static class RepairDesk {
@@ -198,11 +213,6 @@ public class Solution {
 			this.client = null;
 			this.num = num;
 			this.time = time;
-		}
-
-		@Override
-		public String toString() {
-			return "[" + client + ", num=" + num + ", time=" + time + "]";
 		}
 	}
 }
