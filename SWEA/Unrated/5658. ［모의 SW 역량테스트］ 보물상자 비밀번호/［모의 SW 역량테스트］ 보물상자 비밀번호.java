@@ -53,7 +53,9 @@ public class Solution {
 				// 3-1. 변 4개 모두 확인
 				for(int dir=0; dir<4; dir++) {
 					// 3-1-1. 한 변에 있는 수를 10진수로 변환 후 중복 제거를 위해 set에 넣기
-					int num = Integer.parseInt(nums.substring(quater*dir+rotate, quater*(dir+1)+rotate), 16);
+					int start = quater*dir + rotate;
+					int end = quater*(dir+1) + rotate;
+					int num = Integer.parseInt(nums.substring(start, end), 16);
 					set.add(num);
 				}
 			}
