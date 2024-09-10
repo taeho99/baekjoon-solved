@@ -1,82 +1,85 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.LinkedList;
+import java.util.ArrayDeque;
+import java.util.Arrays;
 import java.util.Queue;
 import java.util.StringTokenizer;
 
 public class Main {
-	
-	static int[] dy = {-1, 1, 0, 0};
-	static int[] dx = {0, 0, -1, 1};
-
+	static int rowSize, colSize, time, lastCheeseCnt;
+	static int[][] map;
+	static Queue<int[]> cheeses = new ArrayDeque<>();
+	static int[] dRow = {-1, 1, 0, 0};
+	static int[] dCol = {0, 0, -1, 1};
 	public static void main(String[] args) throws IOException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		StringTokenizer st = new StringTokenizer(br.readLine());
-		int n = Integer.parseInt(st.nextToken());
-		int m = Integer.parseInt(st.nextToken());
 		
-		// 0: 내부공기, 1: 치즈, 2: 외부공기
-		int[][] map = new int[n][m];
-		ArrayList<int[]> cheese = new ArrayList<>();
-		for(int i=0; i<n; i++) {
+		rowSize = Integer.parseInt(st.nextToken());
+		colSize = Integer.parseInt(st.nextToken());
+		
+		map = new int[rowSize][colSize];
+		for(int row=0; row<rowSize; row++) {
 			st = new StringTokenizer(br.readLine());
-			for(int j=0; j<m; j++) {
-				map[i][j] = Integer.parseInt(st.nextToken());
-				if(map[i][j] == 1) {
-					cheese.add(new int[] {i, j});
-				}
+			for(int col=0; col<colSize; col++) {
+				map[row][col] = Integer.parseInt(st.nextToken());
+				if(map[row][col] == 1) cheeses.add(new int[] {row, col});
 			}
 		}
 		
-		int time = 0, result = 0;
-		while(cheese.size() != 0) {
-			time++;
-			//bfs 외부 공기 2로 바꾸기
-			Queue<int[]> queue = new LinkedList<>();
-			boolean[][] visited = new boolean[n][m];
-			visited[0][0] = true;
-			map[0][0] = 2;
+		simulation();
+		System.out.println(time);
+		System.out.println(lastCheeseCnt);
+	}
+	
+	static void simulation() {
+		while(!cheeses.isEmpty()) {
+			// 외부 공기 2로 칠하기
+			Queue<int[]> queue = new ArrayDeque<>();
+			boolean[][] visited = new boolean[rowSize][colSize];
+			
 			queue.add(new int[] {0, 0});
+			visited[0][0] = true;
 			
 			while(!queue.isEmpty()) {
 				int[] poll = queue.poll();
-				for(int i=0; i<4; i++) {
-					int ny = poll[0] + dy[i];
-					int nx = poll[1] + dx[i];
-					if(ny < 0 || ny >= n || nx < 0 || nx >= m) continue;
-					if(!visited[ny][nx] && map[ny][nx] != 1) {
-						visited[ny][nx] = true;
-						map[ny][nx] = 2;
-						queue.add(new int[] {ny, nx});
-					}
+				map[poll[0]][poll[1]] = 2;
+				
+				for(int dir=0; dir<4; dir++) {
+					int nRow = poll[0] + dRow[dir];
+					int nCol = poll[1] + dCol[dir];
+					
+					if(nRow < 0 || nRow >= rowSize || nCol < 0 || nCol >= colSize 
+							|| visited[nRow][nCol] || map[nRow][nCol] == 1) continue;
+					
+					visited[nRow][nCol] = true;
+					queue.add(new int[] {nRow, nCol});
 				}
 			}
 			
-			result = cheese.size();
+			lastCheeseCnt = cheeses.size();
 			
-			for(int i=0; i<cheese.size(); i++) {
-				boolean isAttachAir = false;
-				int[] poll = cheese.get(i);
-				for(int j=0; j<4; j++) {
-					int ny = poll[0] + dy[j];
-					int nx = poll[1] + dx[j];
-					if(map[ny][nx] == 2) {
-						isAttachAir = true;
-						break;
-					}
-				}
+			for(int idx=0; idx<lastCheeseCnt; idx++) {
+				int[] poll = cheeses.poll();
 				
-				if(isAttachAir) {
-					map[poll[0]][poll[1]] = 0;
-					cheese.remove(i--);
-				}
+				if(!isAttach(poll)) cheeses.add(poll); 
+			}
+			time++;
+		}
+	}
+
+	static boolean isAttach(int[] poll) {
+		for(int dir=0; dir<4; dir++) {
+			int nRow = poll[0] + dRow[dir];
+			int nCol = poll[1] + dCol[dir];
+			
+			if(map[nRow][nCol] == 2) {
+				map[poll[0]][poll[1]] = 0;
+				return true;
 			}
 		}
-		System.out.println(time);
-		System.out.println(result);
-		
+		return false;
 	}
 
 }
