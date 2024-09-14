@@ -33,6 +33,11 @@ public class Main {
             } return Integer.compare(o2[1], o1[1]);
         });
 
+        if(k == list.get(0)[0]) {
+            System.out.println(1);
+            return;
+        }
+
         list.get(0)[4] = 1;
         for(int idx=1; idx<n; idx++) {
             int[] prev = list.get(idx-1);
