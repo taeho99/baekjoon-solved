@@ -23,6 +23,7 @@ public class Main {
         }
 
         int time = 0;
+        int statusZeroCnt = 0;
         while(true) {
             time++;
             // 1. 컨베이어 벨트가 1칸 회전한다.
@@ -37,6 +38,7 @@ public class Main {
                     status.set(idx, status.get(idx)-1);
                     robot.set(idx, true);
                     robot.set(idx-1, false);
+                    if(status.get(idx) == 0) statusZeroCnt++;
                 }
             }
             // 2-1. 내리는 위치에 로봇이 있으면 내리기
@@ -46,13 +48,10 @@ public class Main {
             if(status.get(0) > 0) {
                 status.set(0, status.get(0)-1);
                 robot.set(0, true);
+                if(status.get(0) == 0) statusZeroCnt++;
             }
 
             // 4. 내구도 0인 블럭이 k개 이상이면 종료
-            int statusZeroCnt = 0;
-            for (int s : status) {
-                if(s == 0) statusZeroCnt++;
-            }
             if(statusZeroCnt >= k) break;
         }
         System.out.println(time);
