@@ -4,37 +4,34 @@ import java.io.InputStreamReader;
 import java.util.StringTokenizer;
 
 public class Main {
-    static int[] arr;
-    static int n, m;
-    public static void main(String[] args) throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st = new StringTokenizer(br.readLine());
-        n = Integer.parseInt(st.nextToken());
-        m = Integer.parseInt(st.nextToken());
-        arr = new int[n];
-        long low = 0, high = 0;
-        st = new StringTokenizer(br.readLine());
-        for(int i=0; i<n; i++) {
-            arr[i] = Integer.parseInt(st.nextToken());
-            high = Math.max(high, arr[i]);
-        }
+	static int treeSize, requiredTreeLength, trees[];
+	public static void main(String[] args) throws IOException {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		StringTokenizer st = new StringTokenizer(br.readLine());
+		
+		treeSize = Integer.parseInt(st.nextToken());
+		requiredTreeLength = Integer.parseInt(st.nextToken());
+		
+		st = new StringTokenizer(br.readLine());
+		trees = new int[treeSize];
+		for(int idx=0; idx<treeSize; idx++) {
+			trees[idx] = Integer.parseInt(st.nextToken());
+		}
+		
+		int lo = 0, hi = 1_000_000_000;
+		while(lo+1 < hi) {
+			int mid = (lo+hi)/2;
+			if(check(mid)) lo = mid;
+			else hi = mid;
+		}
+		System.out.println(lo);
+	}
 
-        long mid;
-
-        while(low + 1 < high) {
-            mid = (low + high) / 2;
-            if(check(mid)) low = mid;
-            else high = mid;
-        }
-        System.out.println(low);
-    }
-
-    static boolean check(long height) {
-        long sum = 0;
-        for(int i=0; i<n; i++) {
-            long tmp = arr[i] - height;
-            if(tmp > 0) sum += tmp;
-        }
-        return sum >= m;
-    }
+	private static boolean check(int mid) {
+		long sum = 0;
+		for(int idx=0; idx<treeSize; idx++) {
+			if(trees[idx] > mid) sum += trees[idx] - mid;
+		}
+		return sum >= requiredTreeLength;
+	}
 }
