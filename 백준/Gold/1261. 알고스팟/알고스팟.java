@@ -25,35 +25,45 @@ public class Main {
         }
 
         boolean[][] visited = new boolean[rowSize][colSize];
-        PriorityQueue<int[]> pq = new PriorityQueue<>((o1, o2) -> Integer.compare(o1[2], o2[2]));
+        PriorityQueue<Node> pq = new PriorityQueue<>();
 
         visited[0][0] = true;
-        pq.add(new int[] {0, 0, 0});
+        pq.add(new Node(0, 0, 0));
 
         while(!pq.isEmpty()) {
-            int[] poll = pq.poll();
+            Node poll = pq.poll();
 
-            if(poll[0] == rowSize-1 && poll[1] == colSize-1) {
-                System.out.println(poll[2]);
+            if(poll.row == rowSize-1 && poll.col == colSize-1) {
+                System.out.println(poll.cnt);
                 return;
             }
 
             for(int dir=0; dir<4; dir++) {
-                int nRow = poll[0] + dRow[dir];
-                int nCol = poll[1] + dCol[dir];
+                int nRow = poll.row + dRow[dir];
+                int nCol = poll.col + dCol[dir];
 
                 if(nRow < 0 || nCol < 0 || nRow >= rowSize || nCol >= colSize || visited[nRow][nCol])
                     continue;
 
-                if(map[nRow][nCol] == 0) {
-                    visited[nRow][nCol] = true;
-                    pq.add(new int[]{nRow, nCol, poll[2]});
-                } else {
-                    visited[nRow][nCol] = true;
-                    pq.add(new int[]{nRow, nCol, poll[2]+1});
-                }
+                visited[nRow][nCol] = true;
+                pq.add(new Node(nRow, nCol, poll.cnt + map[nRow][nCol]));
             }
         }
 
+    }
+
+    static class Node implements Comparable<Node> {
+        int row, col, cnt;
+
+        public Node(int row, int col, int cnt) {
+            this.row = row;
+            this.col = col;
+            this.cnt = cnt;
+        }
+
+        @Override
+        public int compareTo(Node o) {
+            return Integer.compare(this.cnt, o.cnt);
+        }
     }
 }
