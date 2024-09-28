@@ -45,8 +45,13 @@ public class Main {
                 if(nRow < 0 || nCol < 0 || nRow >= rowSize || nCol >= colSize || visited[nRow][nCol])
                     continue;
 
-                visited[nRow][nCol] = true;
-                pq.add(new int[] {nRow, nCol, poll[2] + map[nRow][nCol]});
+                if(map[nRow][nCol] == 0) {
+                    visited[nRow][nCol] = true;
+                    pq.add(new int[]{nRow, nCol, poll[2]});
+                } else {
+                    visited[nRow][nCol] = true;
+                    pq.add(new int[]{nRow, nCol, poll[2]+1});
+                }
             }
         }
 
