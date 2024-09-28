@@ -2,6 +2,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Arrays;
+import java.util.PriorityQueue;
 import java.util.StringTokenizer;
 
 public class Main {
@@ -15,28 +16,26 @@ public class Main {
         E = Integer.parseInt(st.nextToken());
 
         // create Edge Array
-        Edge[] edges = new Edge[E];
+        PriorityQueue<Edge> edges = new PriorityQueue<>();
         for(int idx=0; idx<E; idx++) {
             st = new StringTokenizer(br.readLine());
             int start = Integer.parseInt(st.nextToken());
             int end = Integer.parseInt(st.nextToken());
             int weight = Integer.parseInt(st.nextToken());
 
-            edges[idx] = new Edge(start, end, weight);
+            edges.add(new Edge(start, end, weight));
         }
 
         // makeSet()
         parents = new int[V+1];
         Arrays.fill(parents, -1);
 
-        // 가중치 오름차순으로 정렬
-        Arrays.sort(edges);
-
         int selectEdgeCnt = 0, sumWeight = 0;
-        for (Edge edge : edges) {
-            if(union(edge.start, edge.end)) {
+        while(!edges.isEmpty()) {
+            Edge edge = edges.poll();
+            if (union(edge.start, edge.end)) {
                 sumWeight += edge.weight;
-                if(++selectEdgeCnt == V-1) break;
+                if (++selectEdgeCnt == V - 1) break;
             }
         }
         System.out.println(sumWeight);
