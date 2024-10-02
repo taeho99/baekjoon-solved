@@ -1,7 +1,6 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Arrays;
 import java.util.StringTokenizer;
 
 /**
@@ -30,11 +29,13 @@ public class Main {
 		
 		st = new StringTokenizer(br.readLine());
 		int[] cost = new int[appCnt+1];
+		int maxCost = 0;
 		for(int idx=1; idx<=appCnt; idx++) {
 			cost[idx] = Integer.parseInt(st.nextToken());
+			maxCost += cost[idx];
 		}
 		
-		int[] dp = new int[10001];
+		int[] dp = new int[maxCost+1];
 		int result = Integer.MAX_VALUE;
 //		for(int appIdx=1; appIdx<=appCnt; appIdx++) {
 //			for(int nowMaxCost=1; nowMaxCost<=10000; nowMaxCost++) {
@@ -51,7 +52,7 @@ public class Main {
 //		}
 		
 		for(int appIdx=1; appIdx<=appCnt; appIdx++) {
-			for(int nowMaxCost=10000; nowMaxCost>=cost[appIdx]; nowMaxCost--) {
+			for(int nowMaxCost=maxCost; nowMaxCost>=cost[appIdx]; nowMaxCost--) {
 				dp[nowMaxCost] = Math.max(dp[nowMaxCost], memory[appIdx] + dp[nowMaxCost-cost[appIdx]]);
 				if(dp[nowMaxCost] >= targetMemory) {
 					result = Math.min(result, nowMaxCost);
