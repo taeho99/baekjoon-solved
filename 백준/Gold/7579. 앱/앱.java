@@ -10,23 +10,33 @@ import java.util.StringTokenizer;
  *	1. 입력
  *		1-1. 앱의 개수와 총 확보해야 하는 최소 메모리 입력
  *		1-2. 앱이 사용하는 메모리를 입력
- *		1-3. 앱의 비활성화 비용을 입력
+ *		1-3. 앱의 비활성화 비용을 입력 및 최대 비용 저장
+ *	2. DP 테이블 정의 : dp[cost] -> 현재 cost에서 가능한 최대 메모리
+ *	3. 1번 앱부터 마지막 앱까지 확인
+ *		3-1. 현재 비용을 최댓값부터 줄여나가면서 확인
+ *			3-1-1. 이전 메모리 누적 값에 max(현재 앱 선택X, 현재 앱 선택O)한 메모리 값을 DP 테이블에 저장
+ *			3-1-2. 현재 사용한 메모리가 목표 메모리값보다 크면 result 갱신
+ *	4. 결과값 출력
  */
 public class Main {
 	
 	public static void main(String[] args) throws IOException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		
+		// 1. 입력
+		// 1-1. 앱의 개수와 총 확보해야 하는 최소 메모리 입력
 		StringTokenizer st = new StringTokenizer(br.readLine());
 		int appCnt = Integer.parseInt(st.nextToken());
 		int targetMemory = Integer.parseInt(st.nextToken());
 		
+		// 1-2. 앱이 사용하는 메모리를 입력
 		st = new StringTokenizer(br.readLine());
 		int[] memory = new int[appCnt+1];
 		for(int idx=1; idx<=appCnt; idx++) {
 			memory[idx] = Integer.parseInt(st.nextToken());
 		}
 		
+		// 1-3. 앱의 비활성화 비용을 입력 및 최대 비용 저장
 		st = new StringTokenizer(br.readLine());
 		int[] cost = new int[appCnt+1];
 		int maxCost = 0;
@@ -35,31 +45,26 @@ public class Main {
 			maxCost += cost[idx];
 		}
 		
-		int[] dp = new int[maxCost+1];
-		int result = Integer.MAX_VALUE;
-//		for(int appIdx=1; appIdx<=appCnt; appIdx++) {
-//			for(int nowMaxCost=1; nowMaxCost<=10000; nowMaxCost++) {
-//				if(cost[appIdx] > nowMaxCost) {
-//					dp[appIdx][nowMaxCost] = dp[appIdx-1][nowMaxCost];
-//				} else {
-//					dp[appIdx][nowMaxCost] = Math.max(dp[appIdx-1][nowMaxCost], memory[appIdx] + dp[appIdx-1][nowMaxCost-cost[appIdx]]);
-//				}
-//				
-//				if(dp[appIdx][nowMaxCost] >= targetMemory) {
-//					result = Math.min(result, nowMaxCost);
-//				}
-//			}
-//		}
 		
+		int result = Integer.MAX_VALUE;
+
+		// 2. DP 테이블 정의 : dp[cost] -> 현재 cost에서 가능한 최대 메모리
+		int[] dp = new int[maxCost+1];
+		
+		// 3. 1번 앱부터 마지막 앱까지 확인
 		for(int appIdx=1; appIdx<=appCnt; appIdx++) {
-			for(int nowMaxCost=maxCost; nowMaxCost>=cost[appIdx]; nowMaxCost--) {
-				dp[nowMaxCost] = Math.max(dp[nowMaxCost], memory[appIdx] + dp[nowMaxCost-cost[appIdx]]);
-				if(dp[nowMaxCost] >= targetMemory) {
-					result = Math.min(result, nowMaxCost);
+			// 3-1. 현재 비용을 최댓값부터 줄여나가면서 확인
+			for(int nowCost=maxCost; nowCost>=cost[appIdx]; nowCost--) {
+				// 3-1-1. 이전 메모리 누적 값에 max(현재 앱 선택X, 현재 앱 선택O)한 메모리 값을 DP 테이블에 저장
+				dp[nowCost] = Math.max(dp[nowCost], memory[appIdx] + dp[nowCost-cost[appIdx]]);
+				// 3-1-2. 현재 사용한 메모리가 목표 메모리값보다 크면 result 갱신
+				if(dp[nowCost] >= targetMemory) {
+					result = Math.min(result, nowCost);
 				}
 			}
 		}
 		
+		// 4. 결과값 출력
 		System.out.println(result);
 		
 	}
