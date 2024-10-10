@@ -2,6 +2,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayDeque;
+import java.util.Arrays;
 import java.util.Queue;
 import java.util.StringTokenizer;
 
@@ -11,9 +12,9 @@ import java.util.StringTokenizer;
  *	
  */
 public class Solution {
-	static int vertexCnt;
+	static int vertexCnt, INF = 1001;
 	static int[] cc;
-	static boolean[][] adjMatrix;
+	static int[][] dp;
 	public static void main(String[] args) throws IOException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		StringBuilder sb = new StringBuilder();
@@ -27,45 +28,35 @@ public class Solution {
 			vertexCnt = Integer.parseInt(st.nextToken());
 			
 			cc = new int[vertexCnt];
-			adjMatrix = new boolean[vertexCnt][vertexCnt];
+			dp = new int[vertexCnt][vertexCnt];
+			
 			for(int row=0; row<vertexCnt; row++) {
 				for(int col=0; col<vertexCnt; col++) {
-					adjMatrix[row][col] = st.nextToken().equals("1");
+					dp[row][col] = st.nextToken().equals("0") ? INF : 1;
+				}
+			}
+			
+			for(int middle=0; middle<vertexCnt; middle++) {
+				for(int start=0; start<vertexCnt; start++) {
+					if(start == middle) continue;
+					for(int end=0; end<vertexCnt; end++) {
+						if(end == start || end == middle) continue;
+						dp[start][end] = Math.min(dp[start][end], dp[start][middle] + dp[middle][end]);
+					}
 				}
 			}
 			
 			int minResult = Integer.MAX_VALUE;
-			for(int vertex=0; vertex<vertexCnt; vertex++) {
-				cc[vertex] = bfs(vertex);
-				minResult = Math.min(minResult, cc[vertex]);
+			for(int row=0; row<vertexCnt; row++) {
+				for(int col=0; col<vertexCnt; col++) {
+					if(row == col) continue;
+					cc[row] += dp[row][col];
+				}
+				minResult = Math.min(minResult, cc[row]);
 			}
-			
+	
 			sb.append(minResult).append('\n');
 		}
 		System.out.println(sb);
-	}
-	
-	private static int bfs(int vertex) {
-		Queue<int[]> queue = new ArrayDeque<>();
-		boolean[] visited = new boolean[vertexCnt];
-		
-		queue.add(new int[] {vertex, 0});
-		visited[vertex] = true;
-		
-		int cnt = 0;
-		while(!queue.isEmpty()) {
-			int[] poll = queue.poll();
-			cnt += poll[1];
-			
-			for(int idx=0; idx<vertexCnt; idx++) {
-				if(idx == poll[0]) continue;
-				if(!adjMatrix[idx][poll[0]] || visited[idx]) continue;
-				
-				queue.add(new int[] {idx, poll[1]+1});
-				visited[idx] = true;
-			}
-		}
-		
-		return cnt;
 	}
 }
