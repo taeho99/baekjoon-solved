@@ -2,20 +2,31 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayDeque;
-import java.util.Arrays;
 import java.util.Queue;
 import java.util.StringTokenizer;
 
 /**
  * 	SWEA.5656 구슬깨기
  * 	
- * 	1. 구슬 떨어뜨릴 위치와 순서 정하기
- * 		1-1. n개중 w개 중복허용 순서있게 뽑기 -> 중복순열
- * 	2. 위에서 구슬 떨어뜨리기
- * 		2-1. 사방으로 (숫자-1)칸만큼 퍼뜨리기
- * 		2-2. 영향받은 모든 벽돌들도 다 터뜨려주기 -> BFS
- * 	3. 벽돌 모두 깼으면 0인 칸들 밑으로 끌어내리기
- * 	4. 구슬 다 떨어뜨렸으면 잔여 블럭개수 세기
+ * 	1. 구슬 개수와 맵의 크기, 맵 입력
+ * 	2. 중복순열로 구슬 떨어뜨릴 위치와 순서 정해주기
+ * 		2-1. [기저조건] 구슬 위치 모두 선택되면
+ * 			2-1-1. 기존 맵을 깊은복사하여 새로운 copyMap 생성
+ * 			2-1-2. 구슬 개수만큼 벽돌깨기와 밑으로 당기기 반복
+ * 			2-1-3. 벽돌 개수 카운트하여 최소 벽돌 개수 갱신
+ * 	3. 벽돌 깨기
+ * 		3-1. 구슬이 벽돌과 닿는 위치 구하기
+ * 			3-1-1. 구슬과 닿는 벽돌이 없으면 종료
+ * 		3-2. 현재 구슬 위치와 벽돌 숫자를 큐에 삽입하고 벽돌 부시기
+ * 			3-2-1. 가로 방향에 있는 벽돌 깨기
+ * 				3-2-1-1. 맵의 범위를 벗어나거나 벽돌이 없으면 제외
+ * 				3-2-1-2. 벽돌 숫자가 1보다 크면 주변 벽돌도 깨야하므로 큐에 삽입하고 벽돌 부수기
+ * 			3-2-2. 세로 방향에 있는 벽돌 깨기
+ * 				3-2-2-1. 맵의 범위를 벗어나거나 벽돌이 없으면 제외
+ * 				3-2-2-2. 벽돌 숫자가 1보다 크면 주변 벽돌도 깨야하므로 큐에 삽입하고 벽돌 부수기
+ * 	4. 벽돌 밑으로 당기기
+ * 		4-1. 밑에있는 줄부터 벽돌이 있는 칸의 벽돌 숫자를 큐에 삽입 후 맵을 0으로 변경
+ * 		4-2. 밑에있는 줄부터 큐에서 poll한 값으로 채워주기
  */
 public class Solution {
 	static int rowSize, colSize, beadCnt, minResult;
@@ -30,6 +41,7 @@ public class Solution {
 		for(int tc=1; tc<=T; tc++) {
 			sb.append('#').append(tc).append(' ');
 			
+			// 1. 구슬 개수와 맵의 크기, 맵 입력
 			st = new StringTokenizer(br.readLine());
 			beadCnt = Integer.parseInt(st.nextToken());
 			colSize = Integer.parseInt(st.nextToken());
@@ -43,6 +55,7 @@ public class Solution {
 				}
 			}
 			
+			// 2. 중복순열로 구슬 떨어뜨릴 위치와 순서 정해주기
 			dropCols = new int[beadCnt];
 			minResult = Integer.MAX_VALUE;
 			permutation(0);
@@ -53,15 +66,18 @@ public class Solution {
 	}
 	
 	private static void permutation(int depth) {
+		// 2-1. [기저조건] 구슬 위치 모두 선택되면
 		if(depth == beadCnt) {
+			// 2-1-1. 기존 맵을 깊은복사하여 새로운 copyMap 생성
 			int[][] copyMap = getCopyMap();
+			
+			// 2-1-2. 구슬 개수만큼 벽돌깨기와 밑으로 당기기 반복
 			for(int bead=0; bead<beadCnt; bead++) {
-				// 벽돌 깨기
-				breakOut(copyMap, dropCols[bead]);
-				// 밑으로 땡기기
-				brickDown(copyMap);
+				brickOut(copyMap, dropCols[bead]); // 벽돌 깨기
+				brickDown(copyMap); // 밑으로 당기기
 			}
 			
+			// 2-1-3. 벽돌 개수 카운트하여 최소 벽돌 개수 갱신
 			minResult = Math.min(minResult, getBrickCount(copyMap));
 			return;
 		}
@@ -70,6 +86,78 @@ public class Solution {
 			dropCols[depth] = col;
 			permutation(depth+1);
 		}
+	}
+
+	// 3. 벽돌 깨기
+	private static void brickOut(int[][] map, int dropCol) {
+		// 3-1. 구슬이 벽돌과 닿는 위치 구하기
+		int dropRow;
+		for(dropRow=0; dropRow<rowSize; dropRow++) {
+			if(map[dropRow][dropCol] != 0) break;
+		}
+		
+		// 3-1-1. 구슬과 닿는 벽돌이 없으면 종료
+		if(dropRow == rowSize) return;
+		
+		// 3-2. 현재 구슬 위치와 벽돌 숫자를 큐에 삽입하고 벽돌 부시기
+		Queue<int[]> queue = new ArrayDeque<>();
+		queue.add(new int[] {dropRow, dropCol, map[dropRow][dropCol]});
+		map[dropRow][dropCol] = 0;
+		
+		while(!queue.isEmpty()) {
+			int[] poll = queue.poll();
+			int power = poll[2] - 1;
+			
+			// 3-2-1. 가로 방향에 있는 벽돌 깨기
+			for(int col=poll[1]-power; col<=poll[1]+power; col++) {
+				// 3-2-1-1. 맵의 범위를 벗어나거나 벽돌이 없으면 제외
+				if(col < 0 || col >= colSize || map[poll[0]][col] == 0) continue;
+				// 3-2-1-2. 벽돌 숫자가 1보다 크면 주변 벽돌도 깨야하므로 큐에 삽입하고 벽돌 부수기
+				if(map[poll[0]][col] > 1) {
+					queue.add(new int[] {poll[0], col, map[poll[0]][col]});
+				}
+				map[poll[0]][col] = 0;
+			}
+			
+			// 3-2-2. 세로 방향에 있는 벽돌 깨기
+			for(int row=poll[0]-power; row<=poll[0]+power; row++) {
+				// 3-2-2-1. 맵의 범위를 벗어나거나 벽돌이 없으면 제외
+				if(row < 0 || row >= rowSize) continue;
+				// 3-2-2-2. 벽돌 숫자가 1보다 크면 주변 벽돌도 깨야하므로 큐에 삽입하고 벽돌 부수기
+				if(map[row][poll[1]] > 1) {
+					queue.add(new int[] {row, poll[1], map[row][poll[1]]});
+				}
+				map[row][poll[1]] = 0;
+			}
+		}
+	}
+
+	// 4. 벽돌 밑으로 당기기
+	private static void brickDown(int[][] map) {
+		for(int col=0; col<colSize; col++) {
+			// 4-1. 밑에있는 줄부터 벽돌이 있는 칸의 벽돌 숫자를 큐에 삽입 후 맵을 0으로 변경
+			Queue<Integer> queue = new ArrayDeque<>();
+			for(int row=rowSize-1; row>=0; row--) {
+				if(map[row][col] != 0) {
+					queue.add(map[row][col]);
+					map[row][col] = 0;
+				}
+			}
+			
+			// 4-2. 밑에있는 줄부터 큐에서 poll한 값으로 채워주기
+			for(int row=rowSize-1; row>=0; row--) {
+				if(queue.isEmpty()) break;
+				map[row][col] = queue.poll();
+			}
+		}
+	}
+
+	private static int[][] getCopyMap() {
+		int[][] copyMap = new int[rowSize][colSize];
+		for(int row=0; row<rowSize; row++) {
+			copyMap[row] = map[row].clone();
+		}
+		return copyMap;
 	}
 
 	private static int getBrickCount(int[][] map) {
@@ -81,67 +169,4 @@ public class Solution {
 		}
 		return cnt;
 	}
-
-	private static int[][] getCopyMap() {
-		int[][] copyMap = new int[rowSize][colSize];
-		for(int row=0; row<rowSize; row++) {
-			copyMap[row] = map[row].clone();
-		}
-		return copyMap;
-	}
-
-	private static void breakOut(int[][] map, int dropCol) {
-		int dropRow;
-		for(dropRow=0; dropRow<rowSize; dropRow++) {
-			if(map[dropRow][dropCol] != 0) break;
-		}
-		
-		if(dropRow == rowSize) return;
-		
-		Queue<int[]> queue = new ArrayDeque<>();
-		
-		queue.add(new int[] {dropRow, dropCol, map[dropRow][dropCol]});
-		map[dropRow][dropCol] = 0;
-		
-		while(!queue.isEmpty()) {
-			int[] poll = queue.poll();
-			int power = poll[2] - 1;
-			
-			// 가로방향 깨기
-			for(int col=poll[1]-power; col<=poll[1]+power; col++) {
-				if(col < 0 || col >= colSize || map[poll[0]][col] == 0) continue;
-				if(map[poll[0]][col] > 1) {
-					queue.add(new int[] {poll[0], col, map[poll[0]][col]});
-				}
-				map[poll[0]][col] = 0;
-			}
-			
-			// 세로방향 깨기
-			for(int row=poll[0]-power; row<=poll[0]+power; row++) {
-				if(row < 0 || row >= rowSize) continue;
-				if(map[row][poll[1]] > 1) {
-					queue.add(new int[] {row, poll[1], map[row][poll[1]]});
-				}
-				map[row][poll[1]] = 0;
-			}
-		}
-	}
-
-	private static void brickDown(int[][] map) {
-		for(int col=0; col<colSize; col++) {
-			Queue<Integer> queue = new ArrayDeque<>();
-			for(int row=rowSize-1; row>=0; row--) {
-				if(map[row][col] != 0) {
-					queue.add(map[row][col]);
-					map[row][col] = 0;
-				}
-			}
-			
-			for(int row=rowSize-1; row>=0; row--) {
-				if(queue.isEmpty()) break;
-				map[row][col] = queue.poll();
-			}
-		}
-	}
-
 }
