@@ -8,23 +8,18 @@ public class Main {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
         int n = Integer.parseInt(br.readLine());
-        int[] arr = new int[n];
-
         StringTokenizer st = new StringTokenizer(br.readLine());
-        for(int idx=0; idx<n; idx++) {
-            arr[idx] = Integer.parseInt(st.nextToken());
-        }
-
         int target = Integer.parseInt(br.readLine());
 
         int left = 0, right = 1000;
         for(int idx=0; idx<n; idx++) {
-            if(arr[idx] == target) {
+            int num = Integer.parseInt(st.nextToken());
+            if(num == target) {
                 System.out.println("0");
                 return;
             }
-            if(arr[idx] < target) left = Math.max(left, arr[idx]);
-            if(target < arr[idx]) right = Math.min(right, arr[idx]);
+            if(num < target) left = Math.max(left, num);
+            else right = Math.min(right, num);
         }
 
         System.out.println((target-left)*(right-target)-1);
