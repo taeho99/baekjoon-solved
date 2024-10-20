@@ -35,7 +35,7 @@ public class Main {
             graph[v].add(u);
         }
 
-        countSubtreeNodes(root);
+        countSubtreeNodes(root, -1);
 
         while(queryCnt-- > 0) {
             sb.append(size[Integer.parseInt(br.readLine())]).append('\n');
@@ -43,14 +43,12 @@ public class Main {
         System.out.print(sb);
     }
 
-    private static int countSubtreeNodes(int currentNode) {
-        if(size[currentNode] != 0) return size[currentNode];
-        visited[currentNode] = true;
+    private static int countSubtreeNodes(int currentNode, int parent) {
         size[currentNode] = 1;
-
         for (int node : graph[currentNode]) {
-            if(visited[node]) continue;
-            size[currentNode] += countSubtreeNodes(node);
+            if(node != parent) {
+                size[currentNode] += countSubtreeNodes(node, currentNode);
+            }
         }
         return size[currentNode];
     }
