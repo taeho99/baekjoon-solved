@@ -5,9 +5,10 @@ import java.util.ArrayList;
 import java.util.StringTokenizer;
 
 public class Main {
-    static ArrayList<Integer>[] graph, tree;
+    static ArrayList<Integer>[] graph;
     static int vertexCnt, root, queryCnt;
-    static int[] parents, size;
+    static int[] size;
+    static boolean[] visited;
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringBuilder sb = new StringBuilder();
@@ -18,13 +19,11 @@ public class Main {
         queryCnt = Integer.parseInt(st.nextToken());
 
         graph = new ArrayList[vertexCnt+1];
-        tree = new ArrayList[vertexCnt+1];
-        parents = new int[vertexCnt+1];
         size = new int[vertexCnt+1];
+        visited = new boolean[vertexCnt+1];
 
         for(int idx=1; idx<=vertexCnt; idx++) {
             graph[idx] = new ArrayList<>();
-            tree[idx] = new ArrayList<>();
         }
 
         for(int idx=0; idx<vertexCnt-1; idx++) {
@@ -36,7 +35,6 @@ public class Main {
             graph[v].add(u);
         }
 
-        makeTree(root, -1);
         countSubtreeNodes(root);
 
         while(queryCnt-- > 0) {
@@ -45,22 +43,15 @@ public class Main {
         System.out.print(sb);
     }
 
-    private static void countSubtreeNodes(int currentNode) {
+    private static int countSubtreeNodes(int currentNode) {
+        if(size[currentNode] != 0) return size[currentNode];
+        visited[currentNode] = true;
         size[currentNode] = 1;
-        for (int node : tree[currentNode]) {
-            if(size[node] == 0)
-                countSubtreeNodes(node);
-            size[currentNode] += size[node];
-        }
-    }
 
-    private static void makeTree(int currentNode, int parent) {
         for (int node : graph[currentNode]) {
-            if(node != parent) {
-                tree[currentNode].add(node);
-                parents[node] = currentNode;
-                makeTree(node, currentNode);
-            }
+            if(visited[node]) continue;
+            size[currentNode] += countSubtreeNodes(node);
         }
+        return size[currentNode];
     }
 }
