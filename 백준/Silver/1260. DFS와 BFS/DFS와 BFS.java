@@ -1,70 +1,78 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.StringTokenizer;
 
 public class Main {
-    static int[][] adj;
-    static boolean[] visited_dfs;
-    static boolean[] visited_bfs;
-    static StringBuilder sb = new StringBuilder();
-    public static void main(String[] args) throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st = new StringTokenizer(br.readLine());
+	static int vertexCnt, edgeCnt, start;
+	static ArrayList<Integer>[] graph;
+	static StringBuilder sb;
 
-        int N = Integer.parseInt(st.nextToken());
-        int M = Integer.parseInt(st.nextToken());
-        int S = Integer.parseInt(st.nextToken());
+	public static void main(String[] args) throws IOException {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		StringTokenizer st = new StringTokenizer(br.readLine());
+		sb = new StringBuilder();
 
-        adj = new int[N+1][N+1];
-        visited_dfs = new boolean[N+1];
-        visited_bfs = new boolean[N+1];
-        for(int i=1; i<=N; i++) {
-            visited_dfs[i] = false;
-            visited_bfs[i] = false;
-            for(int j=1; j<=N; j++) {
-                adj[i][j] = 0;
-            }
-        }
+		vertexCnt = Integer.parseInt(st.nextToken());
+		edgeCnt = Integer.parseInt(st.nextToken());
+		start = Integer.parseInt(st.nextToken());
 
-        for(int i=1; i<=M; i++) {
-            st = new StringTokenizer(br.readLine());
-            int u = Integer.parseInt(st.nextToken());
-            int v = Integer.parseInt(st.nextToken());
-            adj[u][v] = 1;
-            adj[v][u] = 1;
-        }
-        dfs(S);
-        sb.append('\n');
-        bfs(S);
-        System.out.print(sb);
-    }
+		graph = new ArrayList[vertexCnt + 1];
+		for(int idx=1; idx<=vertexCnt; idx++) {
+			graph[idx] = new ArrayList<>();
+		}
 
-    private static void dfs(int s) {
-        visited_dfs[s] = true;
-        sb.append(s).append(' ');
-        for(int i=1; i<adj.length; i++) {
-            if (adj[s][i] == 1 && !visited_dfs[i]) {
-                dfs(i);
-            }
-        }
-    }
+		while(edgeCnt-- > 0) {
+			st = new StringTokenizer(br.readLine());
+			int v1 = Integer.parseInt(st.nextToken());
+			int v2 = Integer.parseInt(st.nextToken());
 
-    private static void bfs(int s) {
-        LinkedList<Integer> queue = new LinkedList<>();
-        queue.add(s);
-        visited_bfs[s] = true;
-        sb.append(s).append(' ');
+			graph[v1].add(v2);
+			graph[v2].add(v1);
+		}
 
-        while(!queue.isEmpty()) {
-            Integer poll = queue.poll();
-            for(int i=1; i<adj.length; i++) {
-                if(adj[poll][i] == 1 && !visited_bfs[i]) {
-                    visited_bfs[i] = true;
-                    sb.append(i).append(' ');
-                    queue.add(i);
-                }
-            }
-        }
-    }
+		for(int idx=1; idx<=vertexCnt; idx++) {
+			Collections.sort(graph[idx]);
+		}
+
+		boolean[] visited = new boolean[vertexCnt + 1];
+		dfs(start, visited);
+		sb.append('\n');
+		bfs();
+
+		System.out.print(sb);
+	}
+
+	private static void dfs(int now, boolean[] visited) {
+		visited[now] = true;
+		sb.append(now).append(' ');
+
+		for (int next : graph[now]) {
+			if (visited[next]) continue;
+			dfs(next, visited);
+		}
+	}
+
+	private static void bfs() {
+		Queue<Integer> queue = new LinkedList<>();
+		boolean[] visited = new boolean[vertexCnt + 1];
+
+		queue.add(start);
+		visited[start] = true;
+
+		while(!queue.isEmpty()) {
+			int poll = queue.poll();
+			sb.append(poll).append(' ');
+
+			for (int next : graph[poll]) {
+				if (visited[next]) continue;
+				queue.add(next);
+				visited[next] = true;
+			}
+		}
+	}
 }
