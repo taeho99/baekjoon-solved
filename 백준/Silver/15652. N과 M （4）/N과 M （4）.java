@@ -4,33 +4,33 @@ import java.io.InputStreamReader;
 import java.util.StringTokenizer;
 
 public class Main {
-    static int[] arr;
-    static boolean[] visited;
-    static StringBuilder sb = new StringBuilder();
-    public static void main(String[] args) throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st = new StringTokenizer(br.readLine());
-        int n = Integer.parseInt(st.nextToken());
-        int m = Integer.parseInt(st.nextToken());
+	static int elementCnt, selectCnt;
+	static int[] selectList;
+	static StringBuilder sb = new StringBuilder();
+	public static void main(String[] args) throws IOException {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		StringTokenizer st = new StringTokenizer(br.readLine());
 
-        arr = new int[m];
-        visited = new boolean[n];
-        dfs(n, m, 0, 0);
-        System.out.print(sb);
-    }
+		elementCnt = Integer.parseInt(st.nextToken());
+		selectCnt = Integer.parseInt(st.nextToken());
+		selectList = new int[selectCnt];
 
-    private static void dfs(int n, int m, int depth, int at) {
-        if(depth == m) {
-            for (int i : arr) {
-                sb.append(i).append(" ");
-            }
-            sb.append('\n');
-            return;
-        }
+		permutation(0, 0);
+		System.out.print(sb);
+	}
 
-        for(int i=at; i<n; i++) {
-            arr[depth] = i+1;
-            dfs(n, m, depth+1, i);
-        }
-    }
+	private static void permutation(int selectIdx, int at) {
+		if (selectIdx == selectCnt) {
+			for (int select : selectList) {
+				sb.append(select).append(' ');
+			}
+			sb.append('\n');
+			return;
+		}
+
+		for(int elementIdx=at; elementIdx<elementCnt; elementIdx++) {
+			selectList[selectIdx] = elementIdx + 1;
+			permutation(selectIdx + 1, elementIdx);
+		}
+	}
 }
