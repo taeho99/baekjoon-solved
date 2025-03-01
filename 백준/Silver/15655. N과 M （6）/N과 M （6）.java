@@ -5,44 +5,46 @@ import java.util.Arrays;
 import java.util.StringTokenizer;
 
 public class Main {
-    static int[] arr, num;
-    static boolean[] visited;
-    static int n, m;
-    static StringBuilder sb = new StringBuilder();
-    public static void main(String[] args) throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st = new StringTokenizer(br.readLine());
-        n = Integer.parseInt(st.nextToken());
-        m = Integer.parseInt(st.nextToken());
-        arr = new int[m];
-        num = new int[n];
-        visited = new boolean[n];
+	static int elementCnt, selectCnt;
+	static int[] elementList, selectList;
+	static StringBuilder sb = new StringBuilder();
+	public static void main(String[] args) throws IOException {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		StringTokenizer st = new StringTokenizer(br.readLine());
 
-        st = new StringTokenizer(br.readLine());
-        for(int i=0; i<n; i++) {
-            num[i] = Integer.parseInt(st.nextToken());
-        }
-        Arrays.sort(num);
+		elementCnt = Integer.parseInt(st.nextToken());
+		selectCnt = Integer.parseInt(st.nextToken());
 
-        dfs(0, 0);
-        System.out.print(sb);
-    }
+		elementList = new int[elementCnt];
+		selectList = new int[selectCnt];
 
-    private static void dfs(int depth, int at) {
-        if(depth == m) {
-            for (int i : arr) {
-                sb.append(i).append(' ');
-            }
-            sb.append('\n');
-            return;
-        }
-        for(int i=at; i<n; i++) {
-            if(!visited[i]) {
-                visited[i] = true;
-                arr[depth] = num[i];
-                dfs(depth+1, i+1);
-                visited[i] = false;
-            }
-        }
-    }
+		st = new StringTokenizer(br.readLine());
+		for (int elementIdx = 0; elementIdx < elementCnt; elementIdx++) {
+			elementList[elementIdx] = Integer.parseInt(st.nextToken());
+		}
+
+		Arrays.sort(elementList);
+
+		combination(0, 0);
+		System.out.print(sb);
+	}
+
+	private static void combination(int elementIdx, int selectIdx) {
+		if (selectIdx == selectCnt) {
+			for (int select : selectList) {
+				sb.append(select).append(' ');
+			}
+			sb.append('\n');
+			return;
+		}
+
+		if (elementIdx == elementCnt) {
+			return;
+		}
+
+		selectList[selectIdx] = elementList[elementIdx];
+		combination(elementIdx + 1, selectIdx + 1);
+		selectList[selectIdx] = 0;
+		combination(elementIdx + 1, selectIdx);
+	}
 }
