@@ -1,71 +1,73 @@
-import java.io.*;
-import java.util.Arrays;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.StringTokenizer;
 
 public class Main {
-    static int[] dy = {0, 0, -1, 1};
-    static int[] dx = {-1, 1, 0, 0};
+
+    static int rowSize, colSize;
+    static int[][] map, result;
+    static int[] dRow = {-1, 1, 0, 0};
+    static int[] dCol = {0, 0, -1, 1};
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringBuilder sb = new StringBuilder();
         StringTokenizer st = new StringTokenizer(br.readLine());
-        int n = Integer.parseInt(st.nextToken());
-        int m = Integer.parseInt(st.nextToken());
-        int[][] map = new int[n][m];
-        int[][] result = new int[n][m];
-        int startY = 0, startX = 0;
-        for(int i=0; i<n; i++) {
+
+        rowSize = Integer.parseInt(st.nextToken());
+        colSize = Integer.parseInt(st.nextToken());
+
+        int startRow = 0, startCol = 0;
+
+        map = new int[rowSize][colSize];
+        result = new int[rowSize][colSize];
+
+        for(int row=0; row<rowSize; row++) {
             st = new StringTokenizer(br.readLine());
-            for(int j=0; j<m; j++) {
-                map[i][j] = Integer.parseInt(st.nextToken());
-                if(map[i][j] == 2) {
-                    startY = i;
-                    startX = j;
-                } else if (map[i][j] == 1) {
-                    result[i][j] = -1;
+            for(int col=0; col<colSize; col++) {
+                map[row][col] = Integer.parseInt(st.nextToken());
+                if (map[row][col] == 2) {
+                    startRow = row;
+                    startCol = col;
+                } else if (map[row][col] == 1) {
+                    result[row][col] = -1;
                 }
             }
         }
 
-        boolean[][] visited = new boolean[n][m];
-        Queue<Point> queue = new LinkedList<>();
+        Queue<int[]> queue = new LinkedList<>();
+        boolean[][] visited = new boolean[rowSize][colSize];
 
-        queue.add(new Point(startY, startX));
-        visited[startY][startX] = true;
-        result[startY][startX] = 0;
+        queue.add(new int[] {startRow, startCol, 0});
+        visited[startRow][startCol] = true;
+
         while(!queue.isEmpty()) {
-            Point poll = queue.poll();
-            for(int i=0; i<4; i++) {
-                int ny = poll.y + dy[i];
-                int nx = poll.x + dx[i];
+            int[] poll = queue.poll();
 
-                if(ny < 0 || ny >= n || nx < 0 || nx >= m) continue;
+            result[poll[0]][poll[1]] = poll[2];
 
-                if(map[ny][nx] == 1 && !visited[ny][nx]) {
-                    queue.add(new Point(ny, nx));
-                    visited[ny][nx] = true;
-                    result[ny][nx] = result[poll.y][poll.x] + 1;
+            for(int dir=0; dir<4; dir++) {
+                int nRow = poll[0] + dRow[dir];
+                int nCol = poll[1] + dCol[dir];
+
+                if (nRow < 0 || nRow >= rowSize || nCol < 0 || nCol >= colSize || visited[nRow][nCol] || map[nRow][nCol] == 0) {
+                    continue;
                 }
+
+                queue.add(new int[] {nRow, nCol, poll[2] + 1});
+                visited[nRow][nCol] = true;
             }
         }
 
-        for(int i=0; i<n; i++) {
-            for(int j=0; j<m; j++) {
-                sb.append(result[i][j]).append(" ");
+        StringBuilder sb = new StringBuilder();
+        for(int row=0; row<rowSize; row++) {
+            for(int col=0; col<colSize; col++) {
+                sb.append(result[row][col]).append(' ');
             }
             sb.append('\n');
         }
+
         System.out.print(sb);
-    }
-
-    static class Point {
-        int y, x;
-
-        public Point(int y, int x) {
-            this.y = y;
-            this.x = x;
-        }
     }
 }
