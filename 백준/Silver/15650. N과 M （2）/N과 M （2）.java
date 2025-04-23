@@ -1,12 +1,13 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Arrays;
 import java.util.StringTokenizer;
 
 public class Main {
 	static int elementCnt, selectCnt;
-	static int[] selectList;
-
+	static int[] elementList, selectList;
+	static boolean[] visited;
 	static StringBuilder sb = new StringBuilder();
 	public static void main(String[] args) throws IOException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -14,14 +15,20 @@ public class Main {
 
 		elementCnt = Integer.parseInt(st.nextToken());
 		selectCnt = Integer.parseInt(st.nextToken());
+		elementList = new int[elementCnt];
 		selectList = new int[selectCnt];
+		visited = new boolean[elementCnt];
+
+		for(int elementIdx=0; elementIdx<elementCnt; elementIdx++) {
+			elementList[elementIdx] = elementIdx + 1;
+		}
 
 		combination(0, 0);
 		System.out.print(sb);
 	}
 
-	private static void combination(int selectIdx, int elementIdx) {
-		if(selectIdx == selectCnt) {
+	private static void combination(int elementIdx, int selectIdx) {
+		if (selectIdx == selectCnt) {
 			for (int select : selectList) {
 				sb.append(select).append(' ');
 			}
@@ -29,10 +36,12 @@ public class Main {
 			return;
 		}
 
-		if(elementIdx == elementCnt) return;
+		if (elementIdx == elementCnt) {
+			return;
+		}
 
-		selectList[selectIdx] = elementIdx + 1;
-		combination(selectIdx + 1, elementIdx + 1);
-		combination(selectIdx, elementIdx + 1);
+		selectList[selectIdx] = elementList[elementIdx];
+		combination(elementIdx + 1, selectIdx + 1);
+		combination(elementIdx + 1, selectIdx);
 	}
 }
