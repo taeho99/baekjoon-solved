@@ -1,67 +1,69 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Arrays;
 import java.util.StringTokenizer;
 
 public class Main {
-    static int[] dy = {-1, 0, 1, 0};
-    static int[] dx = {0, 1, 0, -1};
+    static int[][] map;
+    static int rowSize, colSize, nowRow, nowCol, nowDir;
+    static int[] dRow = {-1, 0, 1, 0};
+    static int[] dCol = {0, 1, 0, -1};
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+
         StringTokenizer st = new StringTokenizer(br.readLine());
-        int n = Integer.parseInt(st.nextToken());
-        int m = Integer.parseInt(st.nextToken());
+        rowSize = Integer.parseInt(st.nextToken());
+        colSize = Integer.parseInt(st.nextToken());
 
         st = new StringTokenizer(br.readLine());
-        int r = Integer.parseInt(st.nextToken());
-        int c = Integer.parseInt(st.nextToken());
-        int d = Integer.parseInt(st.nextToken());
+        nowRow = Integer.parseInt(st.nextToken());
+        nowCol = Integer.parseInt(st.nextToken());
+        nowDir = Integer.parseInt(st.nextToken());
 
-        int[][] arr = new int[n][m];
-        for(int i=0; i<n; i++) {
+        map = new int[rowSize][colSize];
+        for(int row=0; row<rowSize; row++) {
             st = new StringTokenizer(br.readLine());
-            for(int j=0; j<m; j++) {
-                arr[i][j] = Integer.parseInt(st.nextToken());
+            for(int col=0; col<colSize; col++) {
+                map[row][col] = Integer.parseInt(st.nextToken());
             }
         }
 
-        int result = 0;
+        int cnt = 0;
+
         while(true) {
-            if(arr[r][c] == 0) {
-                arr[r][c] = 2;
-                result++;
+            if (map[nowRow][nowCol] == 0) {
+                map[nowRow][nowCol] = 2;
+                cnt++;
             }
 
-            boolean isAvailClean = false;
-            boolean[] whereClean = new boolean[4];
-            for(int i=0; i<4; i++) { //북->동->남->서
-                int ny = r + dy[i];
-                int nx = c + dx[i];
-                if(ny < 0 || ny >= n || nx < 0 || nx >= m) continue;
-                if(arr[ny][nx] == 0) {
-                    isAvailClean = true;
-                    whereClean[i] = true;
-                }
-            }
+            boolean isAroundDirty = false;
 
-            if(isAvailClean) {
-                do {
-                    d = (d + 3) % 4;
-                } while (!whereClean[d]);
-                r = r + dy[d];
-                c = c + dx[d];
-            } else {
-                int ny = r + dy[(d+2)%4];
-                int nx = c + dx[(d+2)%4];
-                if(arr[ny][nx] == 1) {
+            for(int dir=nowDir-1; dir>=nowDir-4; dir--) {
+                int nDir = (dir + 4) % 4;
+                int nRow = nowRow + dRow[nDir];
+                int nCol = nowCol + dCol[nDir];
+
+                if (map[nRow][nCol] == 0) {
+                    isAroundDirty = true;
+                    nowDir = nDir;
+                    nowRow = nRow;
+                    nowCol = nCol;
                     break;
-                } else {
-                    r = ny;
-                    c = nx;
                 }
+            }
+
+            if (!isAroundDirty) {
+                int nDir = (nowDir + 2) % 4;
+                int nRow = nowRow + dRow[nDir];
+                int nCol = nowCol + dCol[nDir];
+
+                if (map[nRow][nCol] == 1) break;
+
+                nowRow = nRow;
+                nowCol = nCol;
             }
         }
-
-        System.out.println(result);
+        System.out.println(cnt);
     }
 }
