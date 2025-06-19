@@ -2,62 +2,61 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.LinkedList;
+import java.util.Queue;
 import java.util.StringTokenizer;
 
 public class Main {
+    static int[] dRow = {-1, 1, 0, 0};
+    static int[] dCol = {0, 0, -1, 1};
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        int t = Integer.parseInt(br.readLine());
-        while(t-- > 0) {
-            StringTokenizer st = new StringTokenizer(br.readLine());
-            int m = Integer.parseInt(st.nextToken()); //가로
-            int n = Integer.parseInt(st.nextToken()); //세로
-            int k = Integer.parseInt(st.nextToken());
-            int[][] map = new int[n][m];
-            int result = 0;
-            while(k-- > 0) {
+        StringBuilder sb = new StringBuilder();
+        StringTokenizer st;
+
+        int T = Integer.parseInt(br.readLine());
+
+        while(T-- > 0) {
+            st = new StringTokenizer(br.readLine());
+            int colSize = Integer.parseInt(st.nextToken());
+            int rowSize = Integer.parseInt(st.nextToken());
+            int cabbageCnt = Integer.parseInt(st.nextToken());
+
+            int[][] map = new int[rowSize][colSize];
+            while(cabbageCnt-- > 0) {
                 st = new StringTokenizer(br.readLine());
-                int x = Integer.parseInt(st.nextToken());
-                int y = Integer.parseInt(st.nextToken());
-                map[y][x] = 1;
+                int col = Integer.parseInt(st.nextToken());
+                int row = Integer.parseInt(st.nextToken());
+                map[row][col] = 1;
             }
 
-            for(int i=0; i<n; i++) {
-                for(int j=0; j<m; j++) {
-                    if (map[i][j]==0) continue;
-                    LinkedList<Point> queue = new LinkedList<>();
-                    queue.add(new Point(i,j));
-                    map[i][j]--;
-                    while(!queue.isEmpty()) {
-                        Point poll = queue.poll();
+            int result = 0;
+            for(int row=0; row<rowSize; row++) {
+                for(int col=0; col<colSize; col++) {
+                    if (map[row][col] == 0) continue;
 
-                        int[] dy = {1, -1, 0, 0};
-                        int[] dx = {0, 0, 1, -1};
-                        for(int l=0; l<4; l++) {
-                            int ny = poll.y + dy[l];
-                            int nx = poll.x + dx[l];
-                            if (ny < 0 || nx < 0 || ny >= n || nx >= m) continue;
-                            if (map[ny][nx] == 1) {
-                                queue.add(new Point(ny,nx));
-                                map[ny][nx]--;
-                            }
+                    Queue<int[]> queue = new LinkedList<>();
+                    queue.add(new int[] {row, col});
+                    map[row][col] = 0;
+
+                    while(!queue.isEmpty()) {
+                        int[] poll = queue.poll();
+
+                        for(int dir=0; dir<4; dir++) {
+                            int nRow = poll[0] + dRow[dir];
+                            int nCol = poll[1] + dCol[dir];
+
+                            if (nRow < 0 || nRow >= rowSize || nCol < 0 || nCol >= colSize || map[nRow][nCol] == 0) continue;
+
+                            queue.add(new int[] {nRow, nCol});
+                            map[nRow][nCol] = 0;
                         }
                     }
                     result++;
                 }
             }
-            System.out.println(result);
-
+            sb.append(result).append('\n');
         }
-    }
 
-    static class Point {
-        int y;
-        int x;
-
-        public Point(int y, int x) {
-            this.y = y;
-            this.x = x;
-        }
+        System.out.print(sb);
     }
 }
