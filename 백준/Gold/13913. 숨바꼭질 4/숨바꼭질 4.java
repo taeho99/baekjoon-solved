@@ -4,6 +4,7 @@ import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.Stack;
 import java.util.StringTokenizer;
 
 public class Main {
@@ -40,11 +41,16 @@ public class Main {
 		}
 
 		StringBuilder sb = new StringBuilder();
+		Stack<Integer> stack = new Stack<>();
+		stack.push(end);
 		int now = parent[end];
-		sb.insert(0, end);
 		while(now != -1) {
-			sb.insert(0, now + " ");
+			stack.push(now);
 			now = parent[now];
+		}
+
+		while(!stack.isEmpty()) {
+			sb.append(stack.pop()).append(' ');
 		}
 		System.out.print(sb);
 	}
