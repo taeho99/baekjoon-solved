@@ -1,45 +1,31 @@
-import java.util.Scanner;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 
 public class Main {
-    public static void main(String[] args) {
-        Scanner input = new Scanner(System.in);
-        int size = input.nextInt();
-        int[] n = new int[size];
-        for(int i=0; i<size; i++) {
-            n[i] = input.nextInt();
-        }
-        quickSort(n, 0, size - 1);
-        for(int i=0; i<size; i++) {
-            System.out.println(n[i]);
-        }
-    }
-    public static void quickSort(int[] data, int start, int end) {
-        if(start >= end) {
-            return;
-        }
-        int key = start;
-        int i = start + 1;
-        int j = end;
-        int temp;
+	public static void main(String[] args) throws IOException {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		StringBuilder sb = new StringBuilder();
+		int size = Integer.parseInt(br.readLine());
+		int[] arr = new int[size];
 
-        while(i <= j) {
-            while(i <= end && data[i] <= data[key]) {
-                i++;
-            }
-            while(j > start && data[j] >= data[key]) {
-                j--;
-            }
-            if(i > j) {
-                temp = data[j];
-                data[j] = data[key];
-                data[key] = temp;
-            } else {
-                temp = data[j];
-                data[j] = data[i];
-                data[i] = temp;
-            }
-        }
-        quickSort(data, start, j-1);
-        quickSort(data, j+1, end);
-    }
+		for(int idx=0; idx<size; idx++) {
+			arr[idx] = Integer.parseInt(br.readLine());
+		}
+
+		for(int i=size-1; i>=0; i--) {
+			for(int j=0; j<i; j++) {
+				if(arr[j] > arr[j+1]) {
+					int tmp = arr[j];
+					arr[j] = arr[j+1];
+					arr[j+1] = tmp;
+				}
+			}
+		}
+
+		for (int i : arr) {
+			sb.append(i).append('\n');
+		}
+		System.out.print(sb);
+	}
 }
