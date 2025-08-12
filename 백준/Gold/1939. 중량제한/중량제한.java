@@ -2,8 +2,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.PriorityQueue;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.StringTokenizer;
 
 public class Main {
@@ -34,29 +34,41 @@ public class Main {
 		startVertex = Integer.parseInt(st.nextToken());
 		endVertex = Integer.parseInt(st.nextToken());
 
-		int[] bestMax = new int[vertexCnt + 1];
-		Arrays.fill(bestMax, -1);
-		PriorityQueue<Node> pq = new PriorityQueue<>((o1, o2) -> Integer.compare(o2.weight, o1.weight));
+		int left = 1, right = 1_000_000_000;
+		int answer = 0;
 
-		bestMax[startVertex] = Integer.MAX_VALUE;
-		pq.add(new Node(startVertex, Integer.MAX_VALUE));
-
-		while(!pq.isEmpty()) {
-			Node cur = pq.poll();
-
-			if(cur.end == endVertex) {
-				System.out.println(bestMax[endVertex]);
-				break;
+		while(left <= right) {
+			int nowWeight = (left + right) / 2; // 중량제한
+			if (canReach(nowWeight)) {
+				answer = nowWeight;
+				left = nowWeight + 1;
+			} else {
+				right = nowWeight - 1;
 			}
-			if(bestMax[cur.end] > cur.weight) continue;
+		}
 
-			for (Node next : graph[cur.end]) {
-				if (bestMax[next.end] < Math.min(cur.weight, next.weight)) {
-					bestMax[next.end] = Math.min(cur.weight, next.weight);
-					pq.add(new Node(next.end, bestMax[next.end]));
+		System.out.println(answer);
+	}
+
+	private static boolean canReach(int nowWeight) {
+		boolean[] visited = new boolean[vertexCnt + 1];
+		Queue<Integer> queue = new LinkedList<>();
+
+		queue.add(startVertex);
+		visited[startVertex] = true;
+
+		while(!queue.isEmpty()) {
+			int poll = queue.poll();
+			if(poll == endVertex) return true;
+
+			for (Node next : graph[poll]) {
+				if(!visited[next.end] && next.weight >= nowWeight) {
+					visited[next.end] = true;
+					queue.add(next.end);
 				}
 			}
 		}
+		return false;
 	}
 
 	static class Node {
