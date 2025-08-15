@@ -44,6 +44,10 @@ public class Main {
 
 		while(!pq.isEmpty()) {
 			Node cur = pq.poll();
+			if (cur.end == endVertex) {
+				System.out.println(best[cur.end]);
+				break;
+			}
 			if (best[cur.end] < cur.weight) continue;
 			for (Node next : graph[cur.end]) {
 				if (best[next.end] > cur.weight + next.weight) {
@@ -52,8 +56,6 @@ public class Main {
 				}
 			}
 		}
-
-		System.out.println(best[endVertex]);
 	}
 
 	static class Node {
