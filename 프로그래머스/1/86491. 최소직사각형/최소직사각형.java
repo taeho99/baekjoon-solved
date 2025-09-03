@@ -1,17 +1,14 @@
 class Solution {
     public int solution(int[][] sizes) {
-        int maxWidth = 0;
-        int maxHeight = 0;
-        for(int i=0; i<sizes.length; i++) {
-            if(sizes[i][1] > sizes[i][0]) {
-                int tmp = sizes[i][0];
-                sizes[i][0] = sizes[i][1];
-                sizes[i][1] = tmp;
+        int maxWidth = 0, maxHeight = 0;
+        for(int idx=0; idx<sizes.length; idx++) {
+            if(sizes[idx][0] < sizes[idx][1]) {
+                int tmp = sizes[idx][0];
+                sizes[idx][0] = sizes[idx][1];
+                sizes[idx][1] = tmp;
             }
-            if(sizes[i][0] > maxWidth)
-                maxWidth = sizes[i][0];
-            if(sizes[i][1] > maxHeight)
-                maxHeight = sizes[i][1];
+            maxWidth = Math.max(sizes[idx][0], maxWidth);
+            maxHeight = Math.max(sizes[idx][1], maxHeight);
         }
         return maxWidth * maxHeight;
     }
