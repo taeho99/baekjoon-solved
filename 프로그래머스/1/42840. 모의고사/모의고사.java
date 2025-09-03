@@ -1,23 +1,20 @@
 import java.util.*;
 
 class Solution {
-    public int[] solution(int[] answers) {
-        int[] user0 = {1,2,3,4,5}; // 5개
-        int[] user1 = {2,1,2,3,2,4,2,5}; // 8개
-        int[] user2 = {3,3,1,1,2,2,4,4,5,5}; // 10개
-        int[] count = new int[3];
-        for(int i=0; i<answers.length; i++) {
-            if(answers[i] == user0[i%5]) count[0]++;
-            if(answers[i] == user1[i%8]) count[1]++;
-            if(answers[i] == user2[i%10]) count[2]++;
+    public List<Integer> solution(int[] answers) {
+        int[][] supo = {{1,2,3,4,5}, {2,1,2,3,2,4,2,5}, {3,3,1,1,2,2,4,4,5,5}};
+        int max = -1;
+        int[] result = new int[3];
+        for(int idx=0; idx<3; idx++) {
+            for(int answerIdx=0; answerIdx<answers.length; answerIdx++) {
+                if(supo[idx][answerIdx%supo[idx].length] == answers[answerIdx]) result[idx]++;
+            }
+            max = Math.max(max, result[idx]);
         }
-        
-        int max = Arrays.stream(count).max().getAsInt();
         List<Integer> answer = new ArrayList<>();
-        for(int i=0; i<count.length; i++) {
-            if(max == count[i])
-                answer.add(i+1);
+        for(int idx=0; idx<3; idx++) {
+            if(max == result[idx]) answer.add(idx+1);
         }
-        return answer.stream().mapToInt(Integer::intValue).toArray();
+        return answer;
     }
 }
