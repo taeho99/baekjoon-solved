@@ -1,17 +1,38 @@
+import java.util.*;
 class Solution {
+    int answer = 0;
+    int[] selectList;
+    boolean[] visited;
     public int solution(int k, int[][] dungeons) {
-        return dfs(dungeons, new boolean[dungeons.length], k, 0, 0);
+        selectList = new int[dungeons.length];
+        visited = new boolean[dungeons.length];
+        permutation(0, k, dungeons);
+        return answer;
     }
-
-    private int dfs(int[][] dungeons, boolean[] visited, int tired, int maxCnt, int cnt) {
-        int m = maxCnt;
-        for (int i = 0; i < dungeons.length; i++) {
-            if (!visited[i] && tired >= dungeons[i][0]) {
-                visited[i] = true;
-                m = Math.max(m, dfs(dungeons, visited, tired - dungeons[i][1], m, cnt + 1));
-                visited[i] = false;
-            }
+    
+    void permutation(int depth, int k, int[][] dungeons) {
+        if(depth == dungeons.length) {
+            answer = Math.max(game(k, dungeons), answer);
+            return;
         }
-        return Math.max(m, cnt);
+        
+        for(int idx=0; idx<dungeons.length; idx++) {
+            if(visited[idx]) continue;
+            visited[idx] = true;
+            selectList[depth] = idx;
+            permutation(depth+1, k, dungeons);
+            visited[idx] = false;
+        }
+    }
+    
+    int game(int health, int[][] dungeons) {
+        int cnt = 0;
+        for(int idx=0; idx<dungeons.length; idx++) {
+            if(health >= dungeons[selectList[idx]][0]) {
+                health -= dungeons[selectList[idx]][1];
+                cnt++;
+            } else break;
+        }
+        return cnt;
     }
 }
