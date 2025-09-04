@@ -1,18 +1,17 @@
-import java.util.HashMap;
-
+import java.util.*;
 class Solution {
-    public String solution(String[] participant, String[] completion) {
-        HashMap<String, Integer> map = new HashMap<>();
+    public String solution(String[] participants, String[] completions) {
         String answer = "";
-        for (String p : participant) {
-            map.put(p, map.getOrDefault(p, 0) + 1);
+        HashMap<String, Integer> map = new HashMap<>();
+        for(String participant : participants) {
+            map.put(participant, map.getOrDefault(participant, 0) + 1);
         }
-        for (String c : completion) {
-            map.put(c, map.get(c) - 1);
+        for(String completion : completions) {
+            map.put(completion, map.get(completion) - 1);
         }
-        for (String s : map.keySet()) {
-            if(map.get(s) == 1) {
-                answer = s;
+        for(Map.Entry<String, Integer> entry : map.entrySet()) {
+            if(entry.getValue() == 1) {
+                answer = entry.getKey();
                 break;
             }
         }
