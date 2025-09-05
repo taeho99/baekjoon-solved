@@ -1,41 +1,35 @@
-import java.util.LinkedList;
-import java.util.Queue;
-
+import java.util.*;
 class Solution {
     public int solution(int[][] maps) {
-        Queue<Point> queue = new LinkedList<>();
-        boolean[][] visited = new boolean[maps.length][maps[0].length];
-        int[] dy = {-1, 1, 0, 0};
-        int[] dx = {0, 0, -1, 1};
-
-        queue.add(new Point(0, 0));
+        int[] dRow = {-1, 1, 0, 0};
+        int[] dCol = {0, 0, -1, 1};
+        int rowSize = maps.length;
+        int colSize = maps[0].length;
+        
+        Queue<int[]> queue = new LinkedList<>();
+        boolean[][] visited = new boolean[rowSize][colSize];
+        
+        queue.add(new int[] {0, 0, 0});
         visited[0][0] = true;
+        
         while(!queue.isEmpty()) {
-            Point poll = queue.poll();
-            int y = poll.y;
-            int x = poll.x;
-            if(y == (maps.length - 1) && x == (maps[0].length - 1))
-                return maps[y][x];
-
-            for(int i=0; i<4; i++) {
-                int ny = y + dy[i];
-                int nx = x + dx[i];
-
-                if(ny < 0 || ny >= maps.length || nx < 0 || nx >= maps[0].length) continue;
-                if(!visited[ny][nx] && maps[ny][nx] >= 1) {
-                    queue.add(new Point(ny, nx));
-                    visited[ny][nx] = true;
-                    maps[ny][nx] = maps[y][x] + 1;
-                }
+            int[] poll = queue.poll();
+            
+            if(poll[0] == rowSize-1 && poll[1] == colSize-1) {
+                return poll[2] + 1;
+            }
+            
+            for(int dir=0; dir<4; dir++) {
+                int nRow = poll[0] + dRow[dir];
+                int nCol = poll[1] + dCol[dir];
+                
+                if(nRow < 0 || nRow >= rowSize || nCol < 0 || nCol >= colSize) continue;
+                if(maps[nRow][nCol] == 0 || visited[nRow][nCol]) continue;
+                
+                queue.add(new int[] {nRow, nCol, poll[2] + 1});
+                visited[nRow][nCol] = true;
             }
         }
         return -1;
-    }
-    class Point {
-        int y, x;
-        public Point(int y, int x) {
-            this.y = y;
-            this.x = x;
-        }
     }
 }
