@@ -2,38 +2,35 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.StringTokenizer;
 
 public class Main {
-	static int elementCnt, selectCnt;
+	static int elementSize, selectSize;
 	static int[] elementList, selectList;
 	static boolean[] visited;
 	static StringBuilder sb = new StringBuilder();
-
 	public static void main(String[] args) throws IOException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+
 		StringTokenizer st = new StringTokenizer(br.readLine());
+		elementSize = Integer.parseInt(st.nextToken());
+		selectSize = Integer.parseInt(st.nextToken());
 
-		elementCnt = Integer.parseInt(st.nextToken());
-		selectCnt = Integer.parseInt(st.nextToken());
-		visited = new boolean[elementCnt];
-		elementList = new int[elementCnt];
-		selectList = new int[selectCnt];
-
+		elementList = new int[elementSize];
+		selectList = new int[selectSize];
+		visited = new boolean[elementSize];
 		st = new StringTokenizer(br.readLine());
-		for(int idx=0; idx<elementCnt; idx++) {
+		for(int idx=0; idx<elementSize; idx++) {
 			elementList[idx] = Integer.parseInt(st.nextToken());
 		}
+
 		Arrays.sort(elementList);
-
-		permutation(0);
-
+		dfs(0);
 		System.out.print(sb);
 	}
 
-	private static void permutation(int selectIdx) {
-		if (selectIdx == selectCnt) {
+	private static void dfs(int depth) {
+		if(depth == selectSize) {
 			for (int select : selectList) {
 				sb.append(select).append(' ');
 			}
@@ -41,12 +38,12 @@ public class Main {
 			return;
 		}
 
-		for(int elementIdx=0; elementIdx<elementCnt; elementIdx++) {
-			if(visited[elementIdx]) continue;
-			visited[elementIdx] = true;
-			selectList[selectIdx] = elementList[elementIdx];
-			permutation(selectIdx + 1);
-			visited[elementIdx] = false;
+		for(int idx=0; idx<elementSize; idx++) {
+			if(visited[idx]) continue;
+			visited[idx] = true;
+			selectList[depth] = elementList[idx];
+			dfs(depth + 1);
+			visited[idx] = false;
 		}
 	}
 }
