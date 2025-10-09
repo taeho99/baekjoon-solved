@@ -1,112 +1,83 @@
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.*;
 
 public class Main {
-    static int rowSize, colSize, ELEMENT_COUNT, SELECT_COUNT, maxSafeArea;
-    static ArrayList<Point> virusList, safeAreaList;
-    static Point[] selectSafeAreaList;
+    static int rowSize, colSize, maxSafeArea = 0;
     static int[][] map;
-    static int[] dRow = {-1, 1, 0, 0};
-    static int[] dCol = {0, 0, -1, 1};
+    static final int[] dRow = {-1, 1, 0, 0};
+    static final int[] dCol = {0, 0, -1, 1};
 
-    public static void main(String[] args) throws IOException {
+    static List<int[]> virusList = new ArrayList<>();
+    static List<int[]> emptyList = new ArrayList<>();
+    static int emptyCount;
+
+    public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st;
+        StringTokenizer st = new StringTokenizer(br.readLine());
 
-        st = new StringTokenizer(br.readLine());
         rowSize = Integer.parseInt(st.nextToken());
         colSize = Integer.parseInt(st.nextToken());
-        ELEMENT_COUNT = 0;
-        SELECT_COUNT = 3;
-
-        virusList = new ArrayList<>();
-        safeAreaList = new ArrayList<>();
-        selectSafeAreaList = new Point[SELECT_COUNT];
         map = new int[rowSize][colSize];
 
-        for(int row=0; row<rowSize; row++) {
+        for (int r = 0; r < rowSize; r++) {
             st = new StringTokenizer(br.readLine());
-            for(int col=0; col<colSize; col++) {
-                map[row][col] = Integer.parseInt(st.nextToken());
-                if(map[row][col] == 0) {
-                    ELEMENT_COUNT++;
-                    safeAreaList.add(new Point(row, col));
-                } else if (map[row][col] == 2) {
-                    virusList.add(new Point(row, col));
-                }
+            for (int c = 0; c < colSize; c++) {
+                map[r][c] = Integer.parseInt(st.nextToken());
+                if (map[r][c] == 0) emptyList.add(new int[]{r, c});
+                else if (map[r][c] == 2) virusList.add(new int[]{r, c});
             }
         }
 
-        combination(0, 0);
+        emptyCount = emptyList.size(); // 전체 빈 칸 수
+        combineWalls(0, 0);            // (depth, startIndex)
         System.out.println(maxSafeArea);
     }
 
-    private static void combination(int elementIdx, int selectIdx) {
-        if(selectIdx == SELECT_COUNT) {
-//            System.out.println(Arrays.toString(selectSafeAreaList));
-            for (Point safeArea : selectSafeAreaList)
-                map[safeArea.row][safeArea.col] = 1;
-            maxSafeArea = Math.max(maxSafeArea, ELEMENT_COUNT - 3 - bfs());
-            for (Point safeArea : selectSafeAreaList)
-                map[safeArea.row][safeArea.col] = 0;
-            return;
-        }
-        if(elementIdx == ELEMENT_COUNT) {
+    // 빈 칸 리스트에서 조합 C(emptyCount, 3)만 생성
+    static void combineWalls(int depth, int start) {
+        if (depth == 3) {
+            int spread = bfsSpreadCount();                 // 새로 감염된 칸 수
+            int safe = emptyCount - 3 - spread;            // 안전 구역: 전체 빈칸 - 벽3 - 감염
+            if (safe > maxSafeArea) maxSafeArea = safe;
             return;
         }
 
-        selectSafeAreaList[selectIdx] = safeAreaList.get(elementIdx);
-        combination(elementIdx + 1, selectIdx + 1);
-
-        selectSafeAreaList[selectIdx] = null;
-        combination(elementIdx + 1, selectIdx);
+        for (int i = start; i < emptyList.size(); i++) {
+            int r = emptyList.get(i)[0];
+            int c = emptyList.get(i)[1];
+            if (map[r][c] != 0) continue;                  // 혹시 중복 보호
+            map[r][c] = 1;                                 // 벽 세우기
+            combineWalls(depth + 1, i + 1);                // 조합: 다음 시작은 i+1
+            map[r][c] = 0;                                 // 복구
+        }
     }
 
-    private static int bfs() {
-        Queue<Point> queue = new LinkedList<>();
+    // 다중 시작 BFS 한 번으로 전체 전파, 맵은 수정하지 않고 visited만 사용
+    static int bfsSpreadCount() {
+        Deque<int[]> q = new ArrayDeque<>();
         boolean[][] visited = new boolean[rowSize][colSize];
-        int virusCnt = 0;
-        for (Point virus : virusList) {
-            queue.add(virus);
-            visited[virus.row][virus.col] = true;
+
+        for (int[] v : virusList) {
+            q.addLast(v);
+            visited[v[0]][v[1]] = true;
         }
 
-        while(!queue.isEmpty()) {
-            Point poll = queue.poll();
-            virusCnt++;
+        int spread = 0; // 새로 감염된 빈 칸 수
+        while (!q.isEmpty()) {
+            int[] cur = q.pollFirst();
+            int r = cur[0], c = cur[1];
 
-            for(int dir=0; dir<4; dir++) {
-                int nextRow = poll.row + dRow[dir];
-                int nextCol = poll.col + dCol[dir];
+            for (int d = 0; d < 4; d++) {
+                int nr = r + dRow[d], nc = c + dCol[d];
+                if (nr < 0 || nr >= rowSize || nc < 0 || nc >= colSize) continue;
+                if (visited[nr][nc]) continue;
+                if (map[nr][nc] != 0) continue;            // 벽(1) 또는 바이러스(2)는 전파 불가
 
-                if(nextRow < 0 || nextRow >= rowSize || nextCol < 0 || nextCol >= colSize) continue;
-
-                if(!visited[nextRow][nextCol] && map[nextRow][nextCol] == 0) {
-                    queue.add(new Point(nextRow, nextCol));
-                    visited[nextRow][nextCol] = true;
-                }
+                visited[nr][nc] = true;
+                q.addLast(new int[]{nr, nc});
+                spread++;                                  // 빈 칸이 새로 감염됨
             }
         }
-
-        return virusCnt - virusList.size();
-    }
-
-    static class Point {
-        int row, col;
-
-        public Point(int row, int col) {
-            this.row = row;
-            this.col = col;
-        }
-
-        @Override
-        public String toString() {
-            return "{" +
-                    "row=" + row +
-                    ", col=" + col +
-                    '}';
-        }
+        return spread;
     }
 }
