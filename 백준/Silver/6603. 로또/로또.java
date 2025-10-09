@@ -5,47 +5,47 @@ import java.util.Arrays;
 import java.util.StringTokenizer;
 
 public class Main {
-	static int[] arr, result;
+	static StringBuilder sb = new StringBuilder();
+	static int[] selectList = new int[6];
+	static int[] elementList;
+	static int elementSize;
 	static boolean[] visited;
-	static int n, m = 6;
-	static StringBuilder sb;
 	public static void main(String[] args) throws IOException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		sb = new StringBuilder();
 		StringTokenizer st;
-		String s;
-		while(!(s = br.readLine()).equals("0")) {
-			st = new StringTokenizer(s);
-			n = Integer.parseInt(st.nextToken());
-			arr = new int[n];
-			result = new int[m];
-			visited = new boolean[n];
-			for(int i=0; i<n; i++) {
-				arr[i] = Integer.parseInt(st.nextToken());
+		String input;
+		while(!(input = br.readLine()).equals("0")) {
+			st = new StringTokenizer(input);
+			elementSize = Integer.parseInt(st.nextToken());
+			elementList = new int[elementSize];
+			visited = new boolean[elementSize];
+
+			for(int idx=0; idx<elementSize; idx++) {
+				elementList[idx] = Integer.parseInt(st.nextToken());
 			}
-			dfs(0, 0);
+
+			Arrays.sort(elementList);
+			combination(0, 0);
 			sb.append('\n');
 		}
 		System.out.print(sb);
 	}
 
-	static void dfs(int depth, int at) {
-		if(depth == m) {
-			for (int i : result) {
-				sb.append(i).append(' ');
+	private static void combination(int depth, int at) {
+		if(depth == 6) {
+			for (int select : selectList) {
+				sb.append(select).append(' ');
 			}
 			sb.append('\n');
 			return;
 		}
-		
-		for(int i=at; i<n; i++) {
-			if(!visited[i]) {
-				visited[i] = true;
-				result[depth] = arr[i];
-				dfs(depth+1, i+1);
-				visited[i] = false;
-			}
+
+		for(int idx=at; idx<elementSize; idx++) {
+			if(visited[idx]) continue;
+			visited[idx] = true;
+			selectList[depth] = elementList[idx];
+			combination(depth+1, idx+1);
+			visited[idx] = false;
 		}
 	}
-
 }
