@@ -25,9 +25,8 @@ public class Main {
 	}
 
 	private static void combination(int depth, int at, int sCnt, int yCnt) {
-		if(sCnt + (7 - depth) < 4) {
-			return;
-		}
+		if (sCnt + (7 - depth) < 4) return;
+		if (yCnt >= 4) return;
 
 		if(depth == 7) {
 			for(int row=0; row<5; row++) {
