@@ -1,7 +1,6 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -11,6 +10,7 @@ public class Main {
 	static char[][] map = new char[5][5];
 	static int[][] elementList = new int[25][2];
 	static int result = 0;
+	static int[] pick = new int[2];
 	public static void main(String[] args) throws IOException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		for(int row=0; row<5; row++) {
@@ -25,44 +25,39 @@ public class Main {
 	}
 
 	private static void combination(int depth, int at, int sCnt, int yCnt) {
-		if (sCnt + (7 - depth) < 4) return;
+		if(sCnt + (7 - depth) < 4) {
+			return;
+		}
 		if (yCnt >= 4) return;
 
 		if(depth == 7) {
-			for(int row=0; row<5; row++) {
-				for(int col=0; col<5; col++) {
-					if (Character.isLowerCase(map[row][col])) {
-						int cnt = 0;
-						Queue<int[]> queue = new LinkedList<>();
-						boolean[][] visited = new boolean[5][5];
+			int cnt = 0;
+			Queue<int[]> queue = new LinkedList<>();
+			boolean[][] visited = new boolean[5][5];
 
-						queue.add(new int[] {row, col});
-						visited[row][col] = true;
+			queue.add(new int[] {pick[0], pick[1]});
+			visited[pick[0]][pick[1]] = true;
 
-						while(!queue.isEmpty()) {
-							int[] poll = queue.poll();
+			while(!queue.isEmpty()) {
+				int[] poll = queue.poll();
 
-							cnt++;
+				cnt++;
 
-							for(int dir=0; dir<4; dir++) {
-								int nRow = poll[0] + dRow[dir];
-								int nCol = poll[1] + dCol[dir];
+				for(int dir=0; dir<4; dir++) {
+					int nRow = poll[0] + dRow[dir];
+					int nCol = poll[1] + dCol[dir];
 
-								if(nRow < 0 || nRow >= 5 || nCol < 0 || nCol >= 5)
-									continue;
-								if(visited[nRow][nCol]) continue;
-								if(Character.isUpperCase(map[nRow][nCol])) continue;
+					if(nRow < 0 || nRow >= 5 || nCol < 0 || nCol >= 5)
+						continue;
+					if(visited[nRow][nCol]) continue;
+					if(Character.isUpperCase(map[nRow][nCol])) continue;
 
-								visited[nRow][nCol] = true;
-								queue.add(new int[] {nRow, nCol});
-							}
-						}
-						if(cnt == 7) {
-							result++;
-						}
-						return;
-					}
+					visited[nRow][nCol] = true;
+					queue.add(new int[] {nRow, nCol});
 				}
+			}
+			if(cnt == 7) {
+				result++;
 			}
 			return;
 		}
@@ -73,6 +68,7 @@ public class Main {
 			}
 
 			map[elementList[idx][0]][elementList[idx][1]] += 32;
+			pick = elementList[idx];
 			if(map[elementList[idx][0]][elementList[idx][1]] == 's') {
 				combination(depth + 1, idx + 1, sCnt+1, yCnt);
 			} else {
