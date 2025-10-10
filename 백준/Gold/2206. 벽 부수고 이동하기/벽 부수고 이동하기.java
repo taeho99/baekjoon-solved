@@ -1,83 +1,65 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 import java.util.StringTokenizer;
 
 public class Main {
-    static int n, m;
-    static int[][] map;
-    static boolean[][][] visited;
-    static int[] dy = {-1, 1, 0, 0};
-    static int[] dx = {0, 0, -1, 1};
+	static int[] dRow = {-1, 1, 0, 0};
+	static int[] dCol = {0, 0, -1, 1};
+	static int rowSize, colSize, minResult = Integer.MAX_VALUE;
+	static boolean[][] map;
+	static List<int[]> wallList = new ArrayList<>();
+	public static void main(String[] args) throws IOException {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		StringTokenizer st = new StringTokenizer(br.readLine());
+		rowSize = Integer.parseInt(st.nextToken());
+		colSize = Integer.parseInt(st.nextToken());
 
-    static class Point {
-        int y, x, count;
-        boolean isDestroy;
+		map = new boolean[rowSize][colSize];
+		for(int row=0; row<rowSize; row++) {
+			char[] input = br.readLine().toCharArray();
+			for(int col=0; col<colSize; col++) {
+				map[row][col] = input[col] == '1';
+			}
+		}
 
-        public Point(int y, int x, int count, boolean isDestroy) {
-            this.y = y;
-            this.x = x;
-            this.count = count;
-            this.isDestroy = isDestroy;
-        }
-    }
+		System.out.println(bfs());
+	}
 
-    public static void main(String[] args) throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st = new StringTokenizer(br.readLine());
-        n = Integer.parseInt(st.nextToken());
-        m = Integer.parseInt(st.nextToken());
-        map = new int[n][m];
-        visited = new boolean[n][m][2];
+	private static int bfs() {
+		Queue<int[]> queue = new LinkedList<>();
+		boolean[][][] visited = new boolean[2][rowSize][colSize];
 
-        for (int i = 0; i < n; i++) {
-            String in = br.readLine();
-            for (int j = 0; j < m; j++) {
-                map[i][j] = in.charAt(j) - '0';
-            }
-        }
+		queue.add(new int[] {0, 0, 1, 0});
+		visited[0][0][0] = true;
 
-        System.out.println(bfs());
-    }
+		while(!queue.isEmpty()) {
+			int[] poll = queue.poll();
 
-    private static int bfs() {
-        Queue<Point> queue = new LinkedList<>();
+			if(poll[0] == rowSize - 1 && poll[1] == colSize - 1) {
+				return poll[2];
+			}
 
-        queue.add(new Point(0, 0, 1, false));
-        visited[0][0][0] = true; // 0: 벽을 부수지 않은 상태 , 1: 벽을 부순 상태
+			for(int dir=0; dir<4; dir++) {
+				int nRow = poll[0] + dRow[dir];
+				int nCol = poll[1] + dCol[dir];
 
-        while (!queue.isEmpty()) {
-            Point poll = queue.poll();
+				if(nRow < 0 || nRow >= rowSize || nCol < 0 || nCol >= colSize)
+					continue;
 
-            if (poll.y == n - 1 && poll.x == m - 1) return poll.count;
-
-            for (int i = 0; i < 4; i++) {
-                int ny = poll.y + dy[i];
-                int nx = poll.x + dx[i];
-
-                if (ny >= n || ny < 0 || nx >= m || nx < 0) continue;
-
-                //벽을 부순 적이 있다면,
-                if (poll.isDestroy) {
-                    if (map[ny][nx] == 0 && !visited[ny][nx][1]) {
-                        visited[ny][nx][1] = true;
-                        queue.add(new Point(ny, nx, poll.count + 1, true));
-                    }
-                } else { //벽을 부순 적이 없다면,
-                    //벽이라면 벽을 부수고 이동한다.
-                    if (map[ny][nx] == 1 && !visited[ny][nx][1]) {
-                        visited[ny][nx][1] = true;
-                        queue.add(new Point(ny, nx, poll.count + 1, true));
-                    } else if (map[ny][nx] == 0 && !visited[ny][nx][0]) {
-                        visited[ny][nx][0] = true;
-                        queue.add(new Point(ny, nx, poll.count + 1, false));
-                    }
-                }
-            }
-        }
-        return -1;
-
-    }
+				if (!map[nRow][nCol] && !visited[poll[3]][nRow][nCol]) {
+					queue.add(new int[] {nRow, nCol, poll[2] + 1, poll[3]});
+					visited[poll[3]][nRow][nCol] = true;
+				} else if (map[nRow][nCol] && poll[3] == 0 && !visited[1][nRow][nCol]) {
+					queue.add(new int[] {nRow, nCol, poll[2] + 1, 1});
+					visited[1][nRow][nCol] = true;
+				}
+			}
+		}
+		return -1;
+	}
 }
