@@ -35,6 +35,9 @@ public class Main {
 		if(depth == limit) {
 			return isOk();
 		}
+		
+		int diff = countMismatch();
+		if(depth + (diff+1) / 2 > 3) return false;
 
 		for(int row = sr; row<=rowSize; row++) {
 			int colStart = (row == sr ? sc : 1);
@@ -47,6 +50,19 @@ public class Main {
 			}
 		}
 		return false;
+	}
+
+	private static int countMismatch() {
+		int diff = 0;
+		for (int startCol = 1; startCol <= colSize; startCol++) {
+			int col = startCol;
+			for (int r = 1; r <= rowSize; r++) {
+				if (col < colSize && graph[r][col]) col++;
+				else if (col > 1 && graph[r][col - 1]) col--;
+			}
+			if (col != startCol) diff++;
+		}
+		return diff;
 	}
 
 	private static boolean canPlace(int row, int col) {
