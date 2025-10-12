@@ -29,7 +29,10 @@ public class Main {
 			}
 		}
 
-		dfs(0, 1, 1);
+		for(int limit=0; limit<=3; limit++) {
+			dfs(0, 1, 1, limit);
+			if(result != Integer.MAX_VALUE) break;
+		}
 		System.out.println(result == Integer.MAX_VALUE ? -1 : result);
 	}
 
@@ -40,11 +43,12 @@ public class Main {
 		return true;
 	}
 
-	private static void dfs(int depth, int sr, int sc) {
-		if(depth == 4) return;
-
-		if(isOk()) {
-			result = Math.min(depth, result);
+	private static void dfs(int depth, int sr, int sc, int limit) {
+		if(result != Integer.MAX_VALUE) return;
+		if(depth == limit) {
+			if (isOk()) {
+				result = depth;
+			}
 			return;
 		}
 
@@ -53,7 +57,7 @@ public class Main {
 			for(int col=colStart; col<=colSize-1; col++) {
 				if (!canPlace(row, col)) continue;
 				graph[row][col][row][col+1] = graph[row][col+1][row][col] = true;
-				dfs(depth+1, row, col+1);
+				dfs(depth+1, row, col+1, limit);
 				graph[row][col][row][col+1] = graph[row][col+1][row][col] = false;
 			}
 		}
