@@ -1,76 +1,69 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.LinkedList;
-import java.util.Queue;
 import java.util.StringTokenizer;
 
 public class Main {
-	static int rowSize, colSize, edgeSize, result = Integer.MAX_VALUE;
-	static boolean[][][][] graph;
+	static int rowSize, colSize, edgeSize, answer = 4;
+	static boolean[][] graph;
 	public static void main(String[] args) throws IOException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		StringTokenizer st = new StringTokenizer(br.readLine());
+
 		colSize = Integer.parseInt(st.nextToken());
 		edgeSize = Integer.parseInt(st.nextToken());
 		rowSize = Integer.parseInt(st.nextToken());
 
-		graph = new boolean[rowSize+1][colSize+1][rowSize+1][colSize+1];
+		graph = new boolean[rowSize+1][colSize+1];
 		while(edgeSize-- > 0) {
 			st = new StringTokenizer(br.readLine());
 			int row = Integer.parseInt(st.nextToken());
 			int col = Integer.parseInt(st.nextToken());
-			graph[row][col][row][col+1] = graph[row][col+1][row][col] = true;
-		}
-
-		for(int row=1; row<=rowSize-1; row++) {
-			for(int col=1; col<colSize; col++) {
-				graph[row][col][row+1][col] = true;
-			}
+			graph[row][col] = true; // row 행에 (col)-(col+1) 연결
 		}
 
 		for(int limit=0; limit<=3; limit++) {
-			dfs(0, 1, 1, limit);
-			if(result != Integer.MAX_VALUE) break;
+			if (dfs(0, 1, 1, limit)) {
+				answer = limit;
+				break;
+			}
 		}
-		System.out.println(result == Integer.MAX_VALUE ? -1 : result);
+		System.out.println(answer == 4 ? -1 : answer);
 	}
 
-	static boolean canPlace(int r, int c) {
-		if (graph[r][c][r][c + 1]) return false;                // 자기 자리 점유
-		if (c > 1 && graph[r][c - 1][r][c]) return false;       // 왼쪽 인접
-		if (c + 1 < colSize && graph[r][c + 1][r][c + 2]) return false; // 오른쪽 인접
+	private static boolean dfs(int depth, int sr, int sc, int limit) {
+		if(depth == limit) {
+			return isOk();
+		}
+
+		for(int row = sr; row<=rowSize; row++) {
+			int colStart = (row == sr ? sc : 1);
+			for(int col = colStart; col<=colSize-1; col++) {
+				if(!canPlace(row, col)) continue;
+
+				graph[row][col] = true;
+				if(dfs(depth+1, row, col+1, limit)) return true;
+				graph[row][col] = false;
+			}
+		}
+		return false;
+	}
+
+	private static boolean canPlace(int row, int col) {
+		if(graph[row][col]) return false;
+		if(col >= 2 && graph[row][col-1]) return false;
+		if(col+2 <= colSize && graph[row][col+1]) return false;
 		return true;
 	}
 
-	private static void dfs(int depth, int sr, int sc, int limit) {
-		if(result != Integer.MAX_VALUE) return;
-		if(depth == limit) {
-			if (isOk()) {
-				result = depth;
-			}
-			return;
-		}
-
-		for(int row=sr; row<=rowSize; row++) {
-			int colStart = (row == sr ? sc : 1);
-			for(int col=colStart; col<=colSize-1; col++) {
-				if (!canPlace(row, col)) continue;
-				graph[row][col][row][col+1] = graph[row][col+1][row][col] = true;
-				dfs(depth+1, row, col+1, limit);
-				graph[row][col][row][col+1] = graph[row][col+1][row][col] = false;
-			}
-		}
-	}
-
 	static boolean isOk() {
-		for (int start = 1; start <= colSize; start++) {
-			int c = start;
-			for (int r = 1; r <= rowSize; r++) {
-				if (c < colSize && graph[r][c][r][c + 1]) c++;
-				else if (c > 1 && graph[r][c - 1][r][c]) c--;
+		for (int startCol = 1; startCol <= colSize; startCol++) {
+			int col = startCol;
+			for(int row=1; row<=rowSize; row++) {
+				if(col+1 <= colSize && graph[row][col]) col++;
+				else if(col >= 2 && graph[row][col-1]) col--;
 			}
-			if (c != start) return false;
+			if(startCol != col) return false;
 		}
 		return true;
 	}
