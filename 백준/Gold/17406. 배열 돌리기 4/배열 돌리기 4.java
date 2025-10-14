@@ -91,11 +91,12 @@ public class Main {
 	}
 
 	private static int getRowSum(int[][] copyMap) {
-		int minRowSum = Integer.MAX_VALUE;
+		int minRowSum = result;
 		for(int row=0; row<rowSize; row++) {
 			int rowSum = 0;
 			for(int col=0; col<colSize; col++) {
 				rowSum += copyMap[row][col];
+				if(rowSum >= minRowSum) break;
 			}
 			minRowSum = Math.min(minRowSum, rowSum);
 		}
