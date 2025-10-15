@@ -12,19 +12,20 @@ public class Main {
 		dfs();
 	}
 
-	private static void dfs() {
+	private static boolean dfs() {
 		if(sb.length() == N) {
 			System.out.println(sb);
-			System.exit(0);
+			return true;
 		}
 
 		for(int idx=1; idx<=3; idx++) {
 			sb.append(idx);
 			if(isGood()) {
-				dfs();
+				if(dfs()) return true;
 			}
 			sb.deleteCharAt(sb.length()-1);
 		}
+		return false;
 	}
 
 	private static boolean isGood() {
