@@ -4,34 +4,40 @@ import java.io.InputStreamReader;
 import java.util.StringTokenizer;
 
 public class Main {
-	static int treeSize, requiredTreeLength, trees[];
+	static int treeCnt, requireTree;
+	static int[] treeHeight;
 	public static void main(String[] args) throws IOException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		StringTokenizer st = new StringTokenizer(br.readLine());
-		
-		treeSize = Integer.parseInt(st.nextToken());
-		requiredTreeLength = Integer.parseInt(st.nextToken());
-		
+		treeCnt = Integer.parseInt(st.nextToken());
+		requireTree = Integer.parseInt(st.nextToken());
+
+		treeHeight = new int[treeCnt];
 		st = new StringTokenizer(br.readLine());
-		trees = new int[treeSize];
-		for(int idx=0; idx<treeSize; idx++) {
-			trees[idx] = Integer.parseInt(st.nextToken());
+		for(int idx=0; idx<treeCnt; idx++) {
+			treeHeight[idx] = Integer.parseInt(st.nextToken());
 		}
-		
+
 		int lo = 0, hi = 1_000_000_000;
-		while(lo+1 < hi) {
-			int mid = (lo+hi)/2;
-			if(check(mid)) lo = mid;
-			else hi = mid;
+		while(lo + 1 < hi) {
+			int mid = (lo+hi) / 2;
+			if(isOk(mid)) {
+				lo = mid;
+			} else {
+				hi = mid;
+			}
 		}
 		System.out.println(lo);
 	}
 
-	private static boolean check(int mid) {
+	private static boolean isOk(int mid) {
 		long sum = 0;
-		for(int idx=0; idx<treeSize; idx++) {
-			if(trees[idx] > mid) sum += trees[idx] - mid;
+		for (int height : treeHeight) {
+			if(height > mid) {
+				sum += height - mid;
+				if(sum >= requireTree) return true;
+			}
 		}
-		return sum >= requiredTreeLength;
+		return sum >= requireTree;
 	}
 }
