@@ -4,33 +4,40 @@ import java.io.InputStreamReader;
 import java.util.StringTokenizer;
 
 public class Main {
-    public static void main(String[] args) throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st = new StringTokenizer(br.readLine());
-        int k = Integer.parseInt(st.nextToken());
-        int n = Integer.parseInt(st.nextToken());
+	static int lanCnt, requireLanCnt;
+	static int[] lanArr;
+	public static void main(String[] args) throws IOException {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		StringTokenizer st = new StringTokenizer(br.readLine());
+		lanCnt = Integer.parseInt(st.nextToken());
+		requireLanCnt = Integer.parseInt(st.nextToken());
 
-        int[] arr = new int[k];
-        long end = 0, start = 1;
-        for(int i=0; i<k; i++) {
-            arr[i] = Integer.parseInt(br.readLine());
-            end = Math.max(end, arr[i]);
-        }
+		lanArr = new int[lanCnt];
+		long lo = 1, hi = 0;
+		for(int idx = 0; idx< lanCnt; idx++) {
+			lanArr[idx] = Integer.parseInt(br.readLine());
+			hi = Math.max(hi, lanArr[idx]);
+		}
 
-        long mid;
-        while(start <= end) {
-            long sum = 0;
-            mid = (start + end) / 2;
-            for(int i=0; i<k; i++) {
-                sum += arr[i] / mid;
-            }
+		hi++;
+		while(lo + 1 < hi) {
+			long mid = (lo+hi) / 2;
+			if(isOk(mid)) {
+				lo = mid;
+			} else {
+				hi = mid;
+			}
+		}
+		System.out.println(lo);
+	}
 
-            if(sum < n) {
-                end = mid - 1;
-            } else {
-                start = mid + 1;
-            }
-        }
-        System.out.println(end);
-    }
+	private static boolean isOk(long mid) {
+		if(mid == 0) return true;
+		long sum = 0;
+		for (int len : lanArr) {
+			sum += len/mid;
+			if(sum >= requireLanCnt) return true;
+		}
+		return sum >= requireLanCnt;
+	}
 }
