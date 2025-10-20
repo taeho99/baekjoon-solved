@@ -4,46 +4,39 @@ import java.io.InputStreamReader;
 import java.util.StringTokenizer;
 
 public class Main {
-    static int n, m;
-    static int[] arr;
-    public static void main(String[] args) throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        n = Integer.parseInt(br.readLine());
+	public static void main(String[] args) throws IOException {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		int size = Integer.parseInt(br.readLine());
 
-        int lo = 1;
-        int hi = 0;
-        int sum = 0;
+		StringTokenizer st = new StringTokenizer(br.readLine());
+		int lo = 1, hi = 0, sum = 0;
+		int[] arr = new int[size];
+		for(int idx=0; idx<size; idx++) {
+			arr[idx] = Integer.parseInt(st.nextToken());
+			hi = Math.max(arr[idx], hi);
+			sum += arr[idx];
+		}
 
-        StringTokenizer st = new StringTokenizer(br.readLine());
-        arr = new int[n];
-        for(int i=0; i<n; i++) {
-            arr[i] = Integer.parseInt(st.nextToken());
-            if(arr[i] > hi) hi = arr[i];
-            sum += arr[i];
-        }
+		int budget = Integer.parseInt(br.readLine());
 
-        m = Integer.parseInt(br.readLine());
+		if(sum <= budget) {
+			System.out.println(hi);
+			return;
+		}
 
-        if(sum <= m) {
-            System.out.println(hi);
-            return;
-        }
+		while(lo + 1 < hi) {
+			int mid = (lo + hi) / 2;
+			if(isOk(arr, mid, budget)) lo = mid;
+			else hi = mid;
+		}
+		System.out.println(lo);
+	}
 
-        while(lo + 1 < hi) {
-            int mid = (lo + hi) / 2;
-
-            if(check(mid)) lo = mid;
-            else hi = mid;
-        }
-        System.out.println(lo);
-    }
-
-    static boolean check(int mid) {
-        int sum = 0;
-        for (int i : arr) {
-            if(i > mid) sum += mid;
-            else sum += i;
-        }
-        return sum <= m;
-    }
+	private static boolean isOk(int[] arr, int mid, int budget) {
+		int sum = 0;
+		for (int i : arr) {
+			sum += Math.min(i, mid);
+		}
+		return sum <= budget;
+	}
 }
