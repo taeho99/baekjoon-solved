@@ -14,23 +14,22 @@ public class Main {
 			arr[idx] = Integer.parseInt(st.nextToken());
 		}
 
-		int left = 0, right = size-1;
+		int lo = 0, hi = size - 1;
 		int minDiff = Integer.MAX_VALUE;
-		int resultLeft = 0, resultRight = 0;
-		while(left < right) {
-			int sum = arr[left] + arr[right];
-			if (minDiff > Math.abs(sum)) {
-				minDiff = Math.abs(sum);
-				resultLeft = arr[left];
-				resultRight = arr[right];
+		int resultLo = -1, resultHi = -1;
+		while(lo < hi) {
+			int diff = arr[lo] + arr[hi];
+			if(minDiff > Math.abs(diff)) {
+				minDiff = Math.abs(diff);
+				resultLo = lo;
+				resultHi = hi;
 			}
-
-			if(sum < 0) {
-				left++;
+			if(diff < 0) {
+				lo++;
 			} else {
-				right--;
+				hi--;
 			}
 		}
-		System.out.println(resultLeft + " " + resultRight);
+		System.out.println(arr[resultLo] + " " + arr[resultHi]);
 	}
 }
